@@ -83,11 +83,35 @@ This document describes a minimal, production-oriented system for retrieving inv
 }
 ```
 Format can be swapped or extended later
-
 ## 5. Implementation
 
-### Step 1: Mock System
-Mock email set (emails.json)
+### 5.1 Mock System
+- Mock email set (emails.json)
+- Mock LLM responses
+- Local test PDFs
+
+### 5.2 LLM Filter Logic
+- Accept email text
+- Return static classification results
+
+### 5.3 PDF Collection & Merge
+- Loop through mock responses
+- Collect PDFs and merge valid ones
+- Skip malformed or unreadable files
+
+### 5.4 End-to-End Local Flow
+- Chain the above into a single script
+- Add logging and output handling
+
+### 5.5 Real Integration
+- Connect to Gmail API
+- Connect to hosted LLM API (GitHub-based)
+- Swap mocks with real functions
+
+### 5.6 Package
+- Final README.md
+- CLI command with optional flags
+- Output folder and logs
 
 Mock LLM responses
 
@@ -102,7 +126,10 @@ Return static classification results
 Loop through mock responses
 
 Collect PDFs and merge valid ones
-
+- Use `PyPDF2` or similar library to handle PDF operations
+- Implement try/except blocks to catch PDF processing errors
+- Track successfully processed PDFs vs failures
+- Use a sequential file naming scheme for organized output
 Skip malformed or unreadable files
 
 ### Step 4: End-to-End Local Flow
