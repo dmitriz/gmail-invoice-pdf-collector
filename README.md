@@ -18,13 +18,6 @@ This tool retrieves emails from a Gmail account, identifies invoices and receipt
 - Download `credentials.json` and ensure it is excluded from version control (e.g., add it to `.gitignore`) or stored securely using a secrets management tool.
 
 ### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-3. Run the Script
-bash
-Copy
-Edit
-python run.py
 Modes
 Mock mode: Uses sample emails and PDFs (default)
 
