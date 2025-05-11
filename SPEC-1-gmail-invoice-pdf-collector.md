@@ -16,8 +16,7 @@ This document describes a minimal, production-oriented system for retrieving inv
 - Only PDF attachments are handled (no conversion from other formats).
 - No metadata or content extraction is performed from the PDFs.
 - System does not modify original emails or store them.
-- 
-“Easy testing/deployment” means:
+- "Easy testing/deployment" means:
   - CLI-based, no UI
   - Minimal setup, one-command execution
   - No Docker, no cloud — local only
