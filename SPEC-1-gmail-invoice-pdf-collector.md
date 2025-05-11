@@ -84,62 +84,65 @@ This document describes a minimal, production-oriented system for retrieving inv
 ```
 Format can be swapped or extended later
 
-5. Implementation
-Step 1: Mock System
+## 5. Implementation
+
+### Step 1: Mock System
 Mock email set (emails.json)
 
 Mock LLM responses
 
 Local test PDFs
 
-Step 2: LLM Filter Logic
+### Step 2: LLM Filter Logic
 Accept email text
 
 Return static classification results
 
-Step 3: PDF Collection & Merge
+### Step 3: PDF Collection & Merge
 Loop through mock responses
 
 Collect PDFs and merge valid ones
 
 Skip malformed or unreadable files
 
-Step 4: End-to-End Local Flow
+### Step 4: End-to-End Local Flow
 Chain the above into a single script
 
 Add logging and output handling
 
-Step 5: Real Integration
+### Step 5: Real Integration
 Connect to Gmail API
 
 Connect to hosted LLM API (GitHub-based)
 
 Swap mocks with real functions
 
-Step 6: Package
+### Step 6: Package
 Final README.md
 
 CLI command with optional flags
 
 Output folder and logs
 
-6. Milestones
-Mocked System Foundation
+## 6. Milestones
 
-LLM Filtering Logic (Mocked)
+### Mocked System Foundation
 
-PDF Handling Pipeline
+### LLM Filtering Logic (Mocked)
 
-End-to-End Flow (Mocked)
+### PDF Handling Pipeline
 
-Gmail API Integration
+### End-to-End Flow (Mocked)
 
-Real LLM Integration
+### Gmail API Integration
 
-Packaging & Documentation
+### Real LLM Integration
 
-7. Gathering Results
-Success Criteria
+### Packaging & Documentation
+
+## 7. Gathering Results
+
+### Success Criteria
 PDFs merged correctly from identified emails
 
 Script runs fully with one command
@@ -148,7 +151,7 @@ No user interaction needed after setup
 
 No email data modified or deleted
 
-Evaluation
+### Evaluation
 Validate on known test set
 
 Manual log review
