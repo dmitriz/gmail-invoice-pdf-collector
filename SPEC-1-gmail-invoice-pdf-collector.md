@@ -138,7 +138,7 @@ Chain the above into a single script
 Add logging and output handling
 
 ### Step 5: Real Integration
-Connect to Gmail API
+Connect to Gmail API using OAuth 2.0 with tokens stored securely in environment variables or a secrets manager.
 
 Connect to hosted LLM API (GitHub-based)
 
