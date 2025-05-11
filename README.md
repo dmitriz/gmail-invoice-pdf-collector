@@ -29,3 +29,7 @@ output/merged.pdf: Final merged PDF
 output/pdfs/: Individual downloaded PDFs
 
 output/errors.log: Any processing issues
+
+## Specification
+
+For detailed information about the system, refer to the [SPEC-1: Gmail Invoice PDF Collector](SPEC-1-gmail-invoice-pdf-collector.md).
