@@ -14,7 +14,8 @@ This tool retrieves emails from a Gmail account, identifies invoices and receipt
 ### 1. Google Cloud Credentials
 - Create a project at https://console.cloud.google.com/
 - Enable the Gmail API
-- Create OAuth 2.0 credentials and download `credentials.json`
+- Create OAuth 2.0 credentials.
+- Download `credentials.json` and ensure it is excluded from version control (e.g., add it to `.gitignore`) or stored securely using a secrets management tool.
 
 ### 2. Install Dependencies
 ```bash
