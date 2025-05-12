@@ -2,44 +2,64 @@
  * Unit tests for PDF utilities
  */
 const fs = require('fs');
-const path = require('path');
-// PDFDocument is used implicitly through mocks
-jest.mock('pdf-lib');
-// Avoiding empty object pattern - prefix with underscore to indicate it's unused
+const path = require('path'); // Original path, used for constructing test paths
+
+// Use actualPath for some operations if needed, but primary mocking is below
+const actualPath = jest.requireActual('path');
+const MOCK_CWD = '/home/z/repos/gmail-invoice-pdf-collector'; // Consistent CWD
+
 const {
   savePdf,
   mergePdfs,
   ensureDirectoryExists,
   processSinglePdf,
+  DEFAULT_OUTPUT_DIR, // Import for direct use in test setup
+  PDF_DIR, // Import for direct use in test setup
 } = require('../utils/pdf-utils');
 
-// Mock dependencies
+// Mock 'fs'
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
   mkdirSync: jest.fn(),
   writeFileSync: jest.fn(),
   readFileSync: jest.fn(),
+  promises: {
+    writeFile: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
-jest.mock('path', () => ({
-  dirname: jest.fn(),
-  join: jest.fn((a, b) => `${a}/${b}`),
-  resolve: jest.fn(),
-}));
-
-jest.mock('pdf-lib', () => {
-  // Create a mock PDFDocument with the methods we use
-  const mockDoc = {
-    copyPages: jest.fn().mockResolvedValue([{}, {}]),
-    getPageIndices: jest.fn().mockReturnValue([0, 1]),
-    addPage: jest.fn(),
-    save: jest.fn().mockResolvedValue(Buffer.from('merged pdf')),
-  };
+// Mock 'path' module
+jest.mock('path', () => {
+  const actualPathModule = jest.requireActual('path');
+  const MOCK_CWD_INTERNAL = '/home/z/repos/gmail-invoice-pdf-collector';
 
   return {
+    ...actualPathModule, // Default to actual implementations
+    // Override resolve to be CWD-aware for testing
+    resolve: jest.fn((...args) => {
+      let pathString = actualPathModule.join(...args);
+      if (!actualPathModule.isAbsolute(pathString)) {
+        pathString = actualPathModule.join(MOCK_CWD_INTERNAL, pathString);
+      }
+      return actualPathModule.normalize(pathString);
+    }),
+    // __dirname in pdf-utils.js will be its actual directory.
+    // If tests need to mock __dirname for path.join(__dirname, ...), it's complex.
+    // For now, assume pdf-utils.js uses __dirname correctly and our resolve mock handles the rest.
+  };
+});
+
+jest.mock('pdf-lib', () => {
+  const mockPdfDocInstance = {
+    copyPages: jest.fn().mockResolvedValue([{ /* page1 */ }, { /* page2 */ }]), // Represents copied page objects
+    getPageIndices: jest.fn().mockReturnValue([0, 1]),
+    addPage: jest.fn(),
+    save: jest.fn().mockResolvedValue(Buffer.from('merged pdf bytes')),
+  };
+  return {
     PDFDocument: {
-      create: jest.fn().mockResolvedValue(mockDoc),
-      load: jest.fn().mockResolvedValue(mockDoc),
+      create: jest.fn().mockResolvedValue(mockPdfDocInstance),
+      load: jest.fn().mockResolvedValue(mockPdfDocInstance),
     },
   };
 });
@@ -54,172 +74,180 @@ describe('PDF Utils', () => {
   });
 
   beforeEach(() => {
-    // Reset all mocks
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // Clears all mocks, including fs and path
 
-    // Set default behaviors
-    fs.existsSync.mockReturnValue(true);
-    path.dirname.mockImplementation((p) => p.split('/').slice(0, -1).join('/') || '/');
-    fs.readFileSync.mockReturnValue(Buffer.from('pdf data'));
+    // Default fs mock implementations
+    require('fs').existsSync.mockReturnValue(true); // Assume files/dirs exist by default
+    require('fs').readFileSync.mockReturnValue(Buffer.from('fake pdf data'));
+    require('fs').promises.writeFile.mockResolvedValue(undefined);
+
+    // path.resolve is mocked at the module level.
+    // path.join, path.dirname, etc., will use actual implementations due to {...actualPathModule}
   });
 
   describe('ensureDirectoryExists', () => {
     it('should create directory if it does not exist', () => {
-      // Setup
-      fs.existsSync.mockReturnValueOnce(false);
-      const dirPath = '/test/dir';
-
-      // Execute
+      const dirPath = 'some/test/dir'; // Relative path
+      require('fs').existsSync.mockReturnValueOnce(false); // Specific mock for this test
+      
       const result = ensureDirectoryExists({ dirPath });
 
-      // Verify
       expect(result.success).toBe(true);
       expect(result.dirPath).toBe(dirPath);
-      expect(fs.mkdirSync).toHaveBeenCalledWith(dirPath, { recursive: true });
+      expect(require('fs').mkdirSync).toHaveBeenCalledWith(dirPath, { recursive: true });
     });
 
     it('should not create directory if it already exists', () => {
-      // Setup
-      fs.existsSync.mockReturnValueOnce(true);
-      const dirPath = '/test/dir';
-
-      // Execute
+      const dirPath = 'some/existing/dir';
+      require('fs').existsSync.mockReturnValueOnce(true); // Specific mock
+      
       const result = ensureDirectoryExists({ dirPath });
 
-      // Verify
       expect(result.success).toBe(true);
-      expect(fs.mkdirSync).not.toHaveBeenCalled();
+      expect(require('fs').mkdirSync).not.toHaveBeenCalled();
     });
   });
 
   describe('savePdf', () => {
-    it('should save PDF buffer to file', async () => {
-      // Setup
-      const pdfBuffer = Buffer.from('pdf content');
-      const outputPath = '/test/output/file.pdf';
-      path.dirname.mockReturnValueOnce('/test/output');
+    // DEFAULT_OUTPUT_DIR in pdf-utils.js is path.join(__dirname, '../../output')
+    // __dirname in pdf-utils.js is 'src/utils'
+    // So, DEFAULT_OUTPUT_DIR becomes 'src/utils/../../output' which resolves to 'output' relative to CWD.
+    // The mocked path.resolve will make this MOCK_CWD/output.
+    const resolvedDefaultOutputDir = path.resolve(MOCK_CWD, 'output');
 
-      // Execute
+    it('should save PDF buffer to file and create directory if it does not exist', async () => {
+      const pdfBuffer = Buffer.from('pdf content');
+      // outputPath is relative to CWD. savePdf will resolve it.
+      // It must be within the resolvedDefaultOutputDir for the security check.
+      const outputPath = 'output/new_dir_for_save/file.pdf';
+      const resolvedOutputPath = path.resolve(MOCK_CWD, outputPath); // Expected path for writeFile
+      const dirToCreate = path.dirname(outputPath); // 'output/new_dir_for_save' (relative)
+
+      // Mock for ensureDirectoryExists:
+      // fs.existsSync(dirToCreate) should return false.
+      require('fs').existsSync.mockImplementation(p => {
+        if (p === dirToCreate) return false; // Directory does not exist
+        return true; // Other checks (like for parent of DEFAULT_OUTPUT_DIR if any)
+      });
+      
       const result = await savePdf({ pdfBuffer, outputPath });
 
-      // Verify
       expect(result.success).toBe(true);
-      expect(fs.writeFileSync).toHaveBeenCalledWith(outputPath, pdfBuffer);
+      // ensureDirectoryExists is called with relative path `dirToCreate`
+      expect(require('fs').mkdirSync).toHaveBeenCalledWith(dirToCreate, { recursive: true });
+      // savePdf calls writeFile with the resolved path
+      expect(require('fs').promises.writeFile).toHaveBeenCalledWith(resolvedOutputPath, pdfBuffer);
     });
 
-    it('should create directory if it does not exist', async () => {
-      // Setup
-      fs.existsSync.mockReturnValueOnce(false);
+    it('should save PDF buffer to file if directory already exists', async () => {
       const pdfBuffer = Buffer.from('pdf content');
-      const outputPath = '/test/output/file.pdf';
-      path.dirname.mockReturnValueOnce('/test/output');
+      const outputPath = 'output/existing_dir_for_save/file.pdf';
+      const resolvedOutputPath = path.resolve(MOCK_CWD, outputPath);
+      const existingDir = path.dirname(outputPath);
 
-      // Execute
+      // Mock for ensureDirectoryExists:
+      // fs.existsSync(existingDir) should return true.
+      require('fs').existsSync.mockImplementation(p => p === existingDir);
+      
       const result = await savePdf({ pdfBuffer, outputPath });
 
-      // Verify
       expect(result.success).toBe(true);
-      expect(fs.mkdirSync).toHaveBeenCalled();
-      expect(fs.writeFileSync).toHaveBeenCalled();
+      expect(require('fs').mkdirSync).not.toHaveBeenCalled();
+      expect(require('fs').promises.writeFile).toHaveBeenCalledWith(resolvedOutputPath, pdfBuffer);
     });
   });
 
   describe('processSinglePdf', () => {
     it('should process a PDF and add its pages to target document', async () => {
-      // Setup
-      const pdfPath = '/test/pdf/file.pdf';
-      const mockTargetDoc = {
-        copyPages: jest.fn().mockResolvedValue([{}, {}]),
-        addPage: jest.fn(),
-      };
+      const pdfPath = 'path/to/some/file.pdf'; // Relative path
+      const mockTargetDocInstance = require('pdf-lib').PDFDocument.create(); // Get instance from mock
 
-      // Execute
-      const result = await processSinglePdf({
-        pdfPath,
-        targetDoc: mockTargetDoc,
+      // fs.existsSync for pdfPath
+      require('fs').existsSync.mockImplementation(p => p === pdfPath);
+      // fs.readFileSync for pdfPath
+      const pdfBytes = Buffer.from('specific pdf data for this test');
+      require('fs').readFileSync.mockImplementation(p => {
+        if (p === pdfPath) return pdfBytes;
+        return Buffer.from('other data');
       });
 
-      // Verify
+      // PDFDocument.load will be called with pdfBytes
+      const loadedPdfDocMock = { getPageIndices: () => [0, 1], /* other methods */ };
+      require('pdf-lib').PDFDocument.load.mockResolvedValue(loadedPdfDocMock);
+      
+      const result = await processSinglePdf({
+        pdfPath,
+        targetDoc: await mockTargetDocInstance, // ensure it's the resolved instance
+      });
+
       expect(result.success).toBe(true);
-      expect(result.pagesAdded).toBe(2);
-      expect(fs.readFileSync).toHaveBeenCalledWith(pdfPath);
-      expect(mockTargetDoc.addPage).toHaveBeenCalledTimes(2);
+      expect(result.pagesAdded).toBe(2); // Based on mock getPageIndices and copyPages
+      expect(require('fs').readFileSync).toHaveBeenCalledWith(pdfPath);
+      expect(require('pdf-lib').PDFDocument.load).toHaveBeenCalledWith(pdfBytes);
+      const resolvedTargetDoc = await mockTargetDocInstance;
+      expect(resolvedTargetDoc.copyPages).toHaveBeenCalledWith(loadedPdfDocMock, [0, 1]);
+      expect(resolvedTargetDoc.addPage).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('mergePdfs', () => {
-    it('should merge multiple PDFs into a single file', async () => {
-      // Setup
-      const pdfPaths = ['/test/pdf/file1.pdf', '/test/pdf/file2.pdf'];
-      const outputPath = '/test/output/merged.pdf';
-      path.dirname.mockReturnValueOnce('/test/output');
+    // outputPath for mergePdfs is relative to CWD.
+    // The internal call to savePdf (or direct writeFileSync in mergePdfs) will use this.
+    // ensureDirectoryExists is called with path.dirname(outputPath).
 
-      // Execute
+    it('should merge multiple PDFs into a single file, creating output dir', async () => {
+      const pdfPaths = ['input/doc1.pdf', 'input/doc2.pdf'];
+      const outputPath = 'output/merged_docs_new_dir/final.pdf'; // Relative to CWD
+      const outputDir = path.dirname(outputPath); // 'output/merged_docs_new_dir'
+
+      // Mock for ensureDirectoryExists (called by mergePdfs for outputDir)
+      // fs.existsSync(outputDir) should be false
+      require('fs').existsSync.mockImplementation(p => {
+        if (p === outputDir) return false; // Output directory for merged PDF doesn't exist
+        if (pdfPaths.includes(p)) return true; // Input PDFs exist
+        return false; // Default for other checks
+      });
+
+      // Mock for processSinglePdf's fs.readFileSync and PDFDocument.load
+      // These are covered by the global mocks and the processSinglePdf test setup,
+      // but we can be more specific if needed.
+      // For simplicity, assume processSinglePdf works as tested above.
+      // The mock for PDFDocument.create() returns an instance that has .save()
+      
       const result = await mergePdfs({ pdfPaths, outputPath });
 
-      // Verify
       expect(result.success).toBe(true);
       expect(result.outputPath).toBe(outputPath);
-      expect(fs.writeFileSync).toHaveBeenCalledWith(outputPath, expect.any(Buffer));
-      expect(result.results.successfulMerges).toBe(2);
+      // ensureDirectoryExists for outputDir
+      expect(require('fs').mkdirSync).toHaveBeenCalledWith(outputDir, { recursive: true });
+      // mergePdfs writes the file directly using fs.writeFileSync
+      expect(require('fs').writeFileSync).toHaveBeenCalledWith(outputPath, Buffer.from('merged pdf bytes')); // From PDFDocument.save mock
+      expect(result.results.successfulMerges).toBe(pdfPaths.length);
     });
 
     it('should handle partial failures gracefully', async () => {
-      // Setup
-      const pdfPaths = ['/test/pdf/file1.pdf', '/test/pdf/bad.pdf'];
-      const outputPath = '/test/output/merged.pdf';
-      path.dirname.mockReturnValueOnce('/test/output');
+      const pdfPaths = ['input/good.pdf', 'input/failing.pdf'];
+      const outputPath = 'output/merged_partial_failure/final.pdf';
+      const outputDir = path.dirname(outputPath);
 
-      // Make the second PDF fail to process
-      fs.readFileSync.mockImplementation((path) => {
-        if (path === '/test/pdf/bad.pdf') {
-          throw new Error('Invalid PDF');
-        }
-        return Buffer.from('pdf data');
+      // Mock fs.existsSync: output dir exists, good.pdf exists, failing.pdf does NOT exist
+      require('fs').existsSync.mockImplementation(p => {
+        if (p === outputDir) return true;
+        if (p === 'input/good.pdf') return true;
+        if (p === 'input/failing.pdf') return false; // This will cause processSinglePdf to fail for it
+        return false;
       });
+      
+      // processSinglePdf will return { success: false, error: ... } for 'input/failing.pdf'
+      // because fs.existsSync(pdfPath) will be false.
 
-      // Execute
       const result = await mergePdfs({ pdfPaths, outputPath });
 
-      // Verify
-      expect(result.success).toBe(true); // Overall process should still succeed
+      expect(result.success).toBe(true); // Overall success if at least one PDF is processed
       expect(result.results.successfulMerges).toBe(1);
       expect(result.results.failedMerges).toBe(1);
-    });
-
-    it('should properly await and use PDF bytes from save() method', async () => {
-      // Setup
-      const pdfPaths = ['/test/pdf/file1.pdf', '/test/pdf/file2.pdf'];
-      const outputPath = '/test/output/merged.pdf';
-      path.dirname.mockReturnValueOnce('/test/output');
-
-      // Create mock PDF document with custom save implementation
-      const customMockPdfDoc = {
-        copyPages: jest.fn().mockResolvedValue([{}, {}]),
-        getPageIndices: jest.fn().mockReturnValue([0, 1]),
-        addPage: jest.fn(),
-        save: jest.fn().mockResolvedValue(Buffer.from('special test pdf bytes')),
-      };
-
-      // Replace the PDFDocument.create mock for this test
-      const originalPdfDocCreate = require('pdf-lib').PDFDocument.create;
-      require('pdf-lib').PDFDocument.create = jest.fn().mockResolvedValue(customMockPdfDoc);
-
-      try {
-        // Execute
-        const result = await mergePdfs({ pdfPaths, outputPath });
-
-        // Verify
-        expect(result.success).toBe(true);
-        expect(customMockPdfDoc.save).toHaveBeenCalled();
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-          outputPath,
-          Buffer.from('special test pdf bytes')
-        );
-      } finally {
-        // Restore the original mock
-        require('pdf-lib').PDFDocument.create = originalPdfDocCreate;
-      }
+      expect(result.results.errors[0]).toContain('PDF file does not exist: input/failing.pdf');
+      expect(require('fs').writeFileSync).toHaveBeenCalledWith(outputPath, Buffer.from('merged pdf bytes'));
     });
   });
 });
