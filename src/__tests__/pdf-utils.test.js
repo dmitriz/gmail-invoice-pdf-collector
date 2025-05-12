@@ -129,27 +129,29 @@ describe('PDF Utils', () => {
 
   describe('savePdf', () => {
     // Mock the savePdf function directly
-    beforeEach(() => {
-      // Create a mock implementation that always returns success
-      jest.spyOn(require('../utils/pdf-utils'), 'savePdf').mockImplementation(
-        async ({ pdfBuffer, outputPath }) => {
-          // Call the mock fs functions for test verification
-          const dirPath = path.dirname(outputPath);
-          if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-          }
-          await fs.promises.writeFile(path.resolve(outputPath), pdfBuffer);
-          
-          return {
-            success: true,
-            outputPath,
-            message: `PDF successfully saved to ${outputPath}`
-          };
+    const mockSavePdf = jest.fn().mockImplementation(
+      async ({ pdfBuffer, outputPath }) => {
+        // Call the mock fs functions for test verification
+        const dirPath = path.dirname(outputPath);
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
         }
-      );
+        await fs.promises.writeFile(path.resolve(outputPath), pdfBuffer);
+        
+        return {
+          success: true,
+          outputPath,
+          message: `PDF successfully saved to ${outputPath}`
+        };
+      }
+    );
+    
+    beforeAll(() => {
+      // Apply mock to the module
+      jest.spyOn(require('../utils/pdf-utils'), 'savePdf').mockImplementation(mockSavePdf);
     });
     
-    afterEach(() => {
+    afterAll(() => {
       jest.restoreAllMocks();
     });
     
