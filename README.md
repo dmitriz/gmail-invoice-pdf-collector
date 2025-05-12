@@ -8,27 +8,174 @@ This tool retrieves emails from a Gmail account, identifies invoices and receipt
 - Download PDF attachments from filtered emails
 - Merge all valid PDFs into a single file
 - Supports mock mode for testing without real Gmail access
+- Functional programming approach with clean error handling
+
+## Project Architecture
+
+This project follows a functional programming approach with these key principles:
+- Pure functions with single object arguments and returns
+- No classes or `this` usage
+- Explicit error handling with result objects
+- Minimal dependencies
+- Comprehensive test coverage
+
+### Directory Structure
+```
+├── config.js                 # Central configuration
+├── mock-data/                # Mock data for testing
+│   ├── emails.json           # Sample email data
+│   └── sample-pdfs/          # Sample PDF files
+├── output/                   # Output directory for PDFs
+│   └── pdfs/                 # Individual PDFs before merging
+├── run-logs/                 # Application logs
+├── .secrets/                 # Credentials storage (gitignored)
+└── src/
+    ├── index.js              # Application entry point
+    ├── invoice-collector.js  # Core invoice collection logic
+    ├── __tests__/            # Unit tests
+    │   ├── invoice-collector.test.js
+    │   ├── mock-llm.test.js
+    │   └── pdf-utils.test.js
+    ├── mocks/                # Mock implementations
+    │   ├── mock-gmail.js     # Mock Gmail API
+    │   └── mock-llm.js       # Mock LLM service
+    └── utils/                # Utility functions
+        ├── logger.js         # Logging utilities
+        └── pdf-utils.js      # PDF handling utilities
+```
 
 ## Setup
 
-### 1. Google Cloud Credentials
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Google Cloud Credentials (for real mode)
 - Create a project at https://console.cloud.google.com/
 - Enable the Gmail API
-- Create OAuth 2.0 credentials.
-- Download `credentials.json` and ensure it is excluded from version control (e.g., add it to `.gitignore`) or stored securely using a secrets management tool.
+- Create OAuth 2.0 credentials
+- Download `credentials.json` and place it in the `.secrets` directory
+- The `.secrets` directory is excluded from version control
 
-### 2. Install Dependencies
-Modes
-Mock mode: Uses sample emails and PDFs (default)
+### 3. Run Application
+```bash
+# Run in mock mode (default)
+npm start
 
-Real mode: Requires live Gmail and LLM API access
+# Run with complete validation, linting, testing and execution
+npm run verify-and-run
 
-Outputs
-output/merged.pdf: Final merged PDF
+# Run with custom configuration (programmatic usage)
+node -e "require('./src/index').run({ realMode: false, confidenceThreshold: 0.8 })"
+```
 
-output/pdfs/: Individual downloaded PDFs
+### 4. Development Commands
 
-output/errors.log: Any processing issues
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage report
+npm run test:full
+
+# Lint the code
+npm run lint
+
+# Format the code
+npm run format
+
+# Run format, lint and tests in sequence
+npm run validate
+
+# Complete verification and execution (format, lint, test, start)
+npm run verify-and-run
+
+# Development workflow with commit
+npm run validate && git commit -am "Description of changes"
+```
+
+## Configuration
+
+All application configuration is centralized in `config.js`. You can override any of these settings when calling the application programmatically.
+
+### Key Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `realMode` | Use real Gmail API instead of mock | `false` |
+| `confidenceThreshold` | Minimum confidence score (0-1) for invoice detection | `0.7` |
+| `outputDir` | Directory for saving output files | `./output` |
+| `maxEmails` | Maximum emails to process (0 = unlimited) | `0` |
+
+### Sample Usage
+
+```javascript
+// Programmatic usage with custom configuration
+const { run } = require('./src/index');
+
+run({
+  realMode: false,  // Use mock data
+  confidenceThreshold: 0.8,  // Higher threshold for classification
+  outputDir: './custom-output'  // Custom output directory
+})
+.then(result => {
+  console.log(`Processed ${result.totalEmails} emails, found ${result.downloadedPdfs} PDFs`);
+})
+.catch(error => {
+  console.error('Failed to process invoices:', error.message);
+});
+```
+
+## Testing Approach
+
+The project follows these testing principles:
+- Unit tests for all core functions
+- No nested describe blocks
+- Clear test names with function name and behavior
+- Mocked dependencies for isolation
+- Full coverage of business logic
+
+## Output
+
+When running the application, it produces:
+- `output/merged.pdf`: The final merged PDF containing all invoices
+- `output/pdfs/`: Directory containing individual downloaded PDFs
+- `run-logs/app.log`: Full application logs
+- `run-logs/error.log`: Error-only logs
+
+## Spec Document
+
+For detailed information about the system design, refer to the [specification document](docs/spec-1-gmail-invoice-pdf-collector.md).
+```bash
+npm test
+```
+
+## Configuration
+You can customize the application behavior by editing `config.js` or by passing options to the `run()` function:
+
+```javascript
+// Example programmatic usage
+const { run } = require('./src/index');
+
+run({
+  outputDir: './custom-output',
+  confidenceThreshold: 0.8,
+  // See config.js for all available options
+}).then(result => {
+  console.log('Processing finished with result:', result);
+});
+```
+
+## Modes
+- **Mock mode**: Uses sample emails and PDFs (default)
+- **Real mode**: Requires live Gmail and LLM API access (coming soon)
+
+## Outputs
+- `output/merged.pdf`: Final merged PDF
+- `output/pdfs/`: Individual downloaded PDFs
+- `run-logs/app.log`: Application logs
+- `run-logs/error.log`: Error logs
 
 ## Specification
 

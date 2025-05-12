@@ -125,8 +125,8 @@ Return static classification results
 Loop through mock responses
 
 Collect PDFs and merge valid ones
-- Use `PyPDF2` or similar library to handle PDF operations
-- Implement try/except blocks to catch PDF processing errors
+- Use `pdf-lib` or similar JavaScript library to handle PDF operations
+- Implement try/catch blocks to catch PDF processing errors
 - Track successfully processed PDFs vs failures
 - Use a sequential file naming scheme for organized output
 Skip malformed or unreadable files
