@@ -22,18 +22,18 @@ jest.mock('fs', () => {
   // Use a real object to track file operations
   const virtualFileSystem = {
     // Pre-populate with paths that should exist
-    '/test/output/merged.pdf': Buffer.from('mock merged pdf')
+    '/test/output/merged.pdf': Buffer.from('mock merged pdf'),
   };
-  
+
   return {
     existsSync: jest.fn((path) => !!virtualFileSystem[path]),
-    mkdirSync: jest.fn((path, options) => { 
-      virtualFileSystem[path] = 'directory'; 
+    mkdirSync: jest.fn((path, options) => {
+      virtualFileSystem[path] = 'directory';
       return true;
     }),
-    writeFileSync: jest.fn((path, data) => { 
+    writeFileSync: jest.fn((path, data) => {
       virtualFileSystem[path] = data;
-      return true; 
+      return true;
     }),
     readFileSync: jest.fn((path) => {
       // Return mock PDF data for any PDF files
@@ -50,12 +50,13 @@ jest.mock('fs', () => {
     _virtualFileSystem: virtualFileSystem,
     // Helper to reset virtual file system
     _reset: () => {
-      Object.keys(virtualFileSystem).forEach(key => {
-        if (key !== '/test/output/merged.pdf') { // Keep our pre-populated entries
+      Object.keys(virtualFileSystem).forEach((key) => {
+        if (key !== '/test/output/merged.pdf') {
+          // Keep our pre-populated entries
           delete virtualFileSystem[key];
         }
       });
-    }
+    },
   };
 });
 
@@ -63,7 +64,7 @@ jest.mock('fs', () => {
 jest.mock('../index', () => {
   // Get the original module
   const originalModule = jest.requireActual('../index');
-  
+
   // Create a mocked version that adds our test functionality
   return {
     ...originalModule,
@@ -71,23 +72,23 @@ jest.mock('../index', () => {
     run: jest.fn(async (options) => {
       // For file system error test
       if (options && options._testFileSystemError) {
-        return { 
-          success: false, 
-          error: 'Failed to create output directories: Permission denied' 
+        return {
+          success: false,
+          error: 'Failed to create output directories: Permission denied',
         };
       }
-      
+
       // For email processing error test
       if (options && options._testEmailProcessingError) {
-        return { 
-          success: false, 
-          error: 'Failed to fetch emails' 
+        return {
+          success: false,
+          error: 'Failed to fetch emails',
         };
       }
-      
+
       // Call the original function for other cases
       return originalModule.run(options);
-    })
+    }),
   };
 });
 
@@ -99,21 +100,21 @@ jest.mock('../mocks/mock-gmail', () => ({
       {
         subject: 'Invoice for April',
         body: 'Please find attached your invoice',
-        attachments: ['invoice1.pdf', 'receipt2.pdf']
+        attachments: ['invoice1.pdf', 'receipt2.pdf'],
       },
       {
         subject: 'Meeting notes',
         body: 'Here are the notes from our meeting',
-        attachments: []
-      }
-    ]
+        attachments: [],
+      },
+    ],
   }),
   getAttachment: jest.fn().mockImplementation(({ emailId, attachmentName }) => {
     return Promise.resolve({
       success: true,
-      data: Buffer.from(`mock content for ${attachmentName}`)
+      data: Buffer.from(`mock content for ${attachmentName}`),
     });
-  })
+  }),
 }));
 
 jest.mock('../mocks/mock-llm', () => ({
@@ -123,9 +124,9 @@ jest.mock('../mocks/mock-llm', () => ({
     return Promise.resolve({
       is_invoice: isInvoice,
       confidence: isInvoice ? 0.95 : 0.1,
-      reason: isInvoice ? 'Contains invoice keywords' : 'Not invoice related'
+      reason: isInvoice ? 'Contains invoice keywords' : 'Not invoice related',
     });
-  })
+  }),
 }));
 
 // Mock PDF library
@@ -163,7 +164,7 @@ describe('Application Integration', () => {
 
       // Ensure directories appear to be created
       fs.existsSync.mockReturnValue(true);
-      
+
       // Track merged PDF writing
       const originalWriteFileSync = fs.writeFileSync;
       fs.writeFileSync = jest.fn((path, data) => {
@@ -219,7 +220,7 @@ describe('Application Integration', () => {
       const originalGetAttachment = mockGmail.getAttachment;
       mockGmail.getAttachment = jest.fn().mockResolvedValueOnce({
         success: false,
-        error: 'Failed to download attachment'
+        error: 'Failed to download attachment',
       });
 
       // Execute
@@ -228,11 +229,11 @@ describe('Application Integration', () => {
       // Verify - should still succeed overall but have errors counted
       expect(result.success).toBe(true);
       expect(result.results.errors).toBeGreaterThan(0);
-      
+
       // Restore original implementation
       mockGmail.getAttachment = originalGetAttachment;
     });
-    
+
     it('should validate that the entry point script works directly', () => {
       // This tests that the script can be run directly
       // We'll verify the module exports the expected functions

@@ -127,7 +127,7 @@ describe('Mock Gmail Service', () => {
       fs.readFileSync.mockImplementationOnce(() => {
         throw new Error('File not found');
       });
-      
+
       // Execute
       const result = await listEmails();
 
@@ -161,9 +161,9 @@ describe('Mock Gmail Service', () => {
 
     it('should handle custom allowed extensions', () => {
       // Execute
-      const result = hasAllowedExtension({ 
+      const result = hasAllowedExtension({
         filename: 'test.jpg',
-        allowedExtensions: ['.jpg', '.png'] 
+        allowedExtensions: ['.jpg', '.png'],
       });
 
       // Verify
@@ -204,9 +204,9 @@ describe('Mock Gmail Service', () => {
 
     it('should reject with error when file has disallowed extension', async () => {
       // Execute and verify
-      await expect(
-        getAttachment({ emailId: 1, attachmentName: 'malicious.exe' })
-      ).rejects.toThrow('File type .exe not allowed');
+      await expect(getAttachment({ emailId: 1, attachmentName: 'malicious.exe' })).rejects.toThrow(
+        'File type .exe not allowed'
+      );
     });
 
     it('should reject with error when file does not exist', async () => {
@@ -214,9 +214,9 @@ describe('Mock Gmail Service', () => {
       fs.existsSync.mockReturnValueOnce(false);
 
       // Execute and verify
-      await expect(
-        getAttachment({ emailId: 1, attachmentName: 'missing.pdf' })
-      ).rejects.toThrow('Attachment missing.pdf not found');
+      await expect(getAttachment({ emailId: 1, attachmentName: 'missing.pdf' })).rejects.toThrow(
+        'Attachment missing.pdf not found'
+      );
     });
 
     it('should reject with error when file read fails', async () => {
@@ -227,13 +227,11 @@ describe('Mock Gmail Service', () => {
       });
 
       // Execute and verify
-      await expect(
-        getAttachment({ emailId: 1, attachmentName: 'protected.pdf' })
-      ).rejects.toEqual({
+      await expect(getAttachment({ emailId: 1, attachmentName: 'protected.pdf' })).rejects.toEqual({
         success: false,
         error: expect.objectContaining({
-          message: expect.stringContaining('Permission denied')
-        })
+          message: expect.stringContaining('Permission denied'),
+        }),
       });
     });
   });

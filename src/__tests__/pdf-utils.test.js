@@ -184,7 +184,7 @@ describe('PDF Utils', () => {
       const pdfPaths = ['/test/pdf/file1.pdf', '/test/pdf/file2.pdf'];
       const outputPath = '/test/output/merged.pdf';
       path.dirname.mockReturnValueOnce('/test/output');
-      
+
       // Create mock PDF document with custom save implementation
       const customMockPdfDoc = {
         copyPages: jest.fn().mockResolvedValue([{}, {}]),
@@ -192,7 +192,7 @@ describe('PDF Utils', () => {
         addPage: jest.fn(),
         save: jest.fn().mockResolvedValue(Buffer.from('special test pdf bytes')),
       };
-      
+
       // Replace the PDFDocument.create mock for this test
       const originalPdfDocCreate = require('pdf-lib').PDFDocument.create;
       require('pdf-lib').PDFDocument.create = jest.fn().mockResolvedValue(customMockPdfDoc);
@@ -200,7 +200,7 @@ describe('PDF Utils', () => {
       try {
         // Execute
         const result = await mergePdfs({ pdfPaths, outputPath });
-        
+
         // Verify
         expect(result.success).toBe(true);
         expect(customMockPdfDoc.save).toHaveBeenCalled();

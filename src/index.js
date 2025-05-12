@@ -17,7 +17,9 @@ const { logger } = require('./utils/logger');
 const initializeServices = (config) => {
   if (config.realMode) {
     // Real mode requires API access which is not yet set up
-    throw new Error('Real mode requires API access which has not been set up. Please use --test-mode flag for mock functionality.');
+    throw new Error(
+      'Real mode requires API access which has not been set up. Please use --test-mode flag for mock functionality.'
+    );
   }
 
   // Return mock services for test mode
@@ -91,14 +93,14 @@ if (require.main === module) {
 
   // Execute main function
   run(config)
-    .then(result => {
+    .then((result) => {
       if (!result.success) {
         logger.error(`Application failed: ${result.error}`);
         process.exit(1);
       }
       logger.info('Application completed successfully');
     })
-    .catch(error => {
+    .catch((error) => {
       logger.error(`Fatal error: ${error.message}`);
       process.exit(1);
     });
