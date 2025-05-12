@@ -19,6 +19,45 @@ This project follows a functional programming approach with these key principles
 - Minimal dependencies
 - Comprehensive test coverage
 
+## Usage
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/dmitriz/gmail-invoice-pdf-collector.git
+cd gmail-invoice-pdf-collector
+
+# Install dependencies
+npm install
+```
+
+### Running the Application
+
+```bash
+# Run in mock mode (default) - uses mock data, no real API access needed
+npm start
+
+# Run with real Gmail API access (requires proper API setup)
+npm run start:real
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests only (excludes integration tests)
+npm run test:unit
+
+# Run integration tests
+npm run test:integration
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
 ### Directory Structure
 ```
 ├── config.js                 # Central configuration

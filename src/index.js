@@ -85,23 +85,21 @@ if (require.main === module) {
   // Check for test mode flag
   const isTestMode = process.argv.includes('--test-mode');
 
-  // Create appropriate config
-  const config = createConfig({
-    ...defaultConfig,
-    realMode: !isTestMode, // Only use real mode if not in test mode
-  });
-
+  // Build configuration for execution
+  const config = createConfig({ realMode: !isTestMode });
   logger.info(`Running in ${isTestMode ? 'TEST' : 'PRODUCTION'} mode`);
 
-  run({ config }).then(result => {
-    if (!result.success) {
-      logger.error(`Application failed: ${result.error}`);
-      process.exit(1);
-    } else {
+  // Execute main function
+  run(config)
+    .then(result => {
+      if (!result.success) {
+        logger.error(`Application failed: ${result.error}`);
+        process.exit(1);
+      }
       logger.info('Application completed successfully');
-    }
-  }).catch((error) => {
-    logger.error(`Fatal error: ${error.message}`);
-    process.exit(1);
-  });
+    })
+    .catch(error => {
+      logger.error(`Fatal error: ${error.message}`);
+      process.exit(1);
+    });
 }
