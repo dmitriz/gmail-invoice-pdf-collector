@@ -107,7 +107,8 @@ const getAttachment = ({ /* emailId, */ attachmentName, samplePdfsDir = SAMPLE_P
     }
 
     // Construct path to sample PDF
-    const pdfPath = path.join(samplePdfsDir, attachmentName);
+    const safeAttachmentName = path.basename(attachmentName);
+    const pdfPath = path.join(samplePdfsDir, safeAttachmentName);
 
     // Check if file exists
     if (!fs.existsSync(pdfPath)) {
