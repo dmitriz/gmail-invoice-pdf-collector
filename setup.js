@@ -1,6 +1,19 @@
 /**
  * One-Time Setup Script
- * Automatically creates all required project files and directories
+ * 
+ * This script initializes the project by:
+ * 1. Creating necessary directories for the application:
+ *    - output/ (for saving PDFs and processed files)
+ *    - .secrets/ (for storing OAuth credentials securely)
+ *    - run-logs/ (for application logs)
+ *    - mock-data/ (for test data files)
+ * 
+ * 2. Setting up test data for development mode:
+ *    - Creates sample PDFs in mock-data/sample-pdfs/
+ *    - Creates test email data in mock-data/emails.json
+ * 
+ * Run this script once after cloning the repository to set up the
+ * required directory structure and sample files for testing.
  */
 const fs = require('fs');
 const path = require('path');
@@ -47,36 +60,14 @@ const setup = () => {
   ensureDir(mockDataDir);
   ensureDir(mockPdfsDir);
   
-  // Create secrets README if it doesn't exist
-  const secretsReadmePath = path.join(secretsDir, 'README.md');
-  const secretsReadmeContent = `# Gmail API Credentials
+  // Create a simple note file in the secrets directory
+  const secretsReadmePath = path.join(secretsDir, 'NOTE.txt');
+  const secretsReadmeContent = `This directory is for storing your OAuth credentials for Gmail API access.
 
-For this application to work with Gmail:
+Place your credentials.json file here (OAuth 2.0 user credentials, not service account).
+See the main project README.md for detailed setup instructions.
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project
-3. Enable the Gmail API
-4. Create OAuth 2.0 credentials (Desktop app)
-5. Download the credentials as JSON
-6. Save the file as \`credentials.json\` in this directory
-
-## What credentials.json should look like:
-
-\`\`\`json
-{
-  "installed": {
-    "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
-    "project_id": "your-project-id",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_secret": "YOUR_CLIENT_SECRET",
-    "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"]
-  }
-}
-\`\`\`
-
-After first run, a \`token.json\` file will be created here to store your access tokens.
+Note: All files in this directory are gitignored for your security.
 `;
   createFileIfNotExists(secretsReadmePath, secretsReadmeContent);
   
@@ -196,9 +187,13 @@ After first run, a \`token.json\` file will be created here to store your access
   }
   
   console.log('\n=== Setup complete! ===');
-  console.log('Run "npm install" (if you haven\'t already) to install dependencies');
-  console.log('Then run "npm run start:test" to test the application');
-  console.log('For production use, place credentials.json in the .secrets directory');
+  console.log('Next steps:');
+  console.log('1. Run "npm install" to install dependencies');
+  console.log('2. Run "npm run start:test" to test with mock data');
+  console.log('3. For production use:');
+  console.log('   - Create OAuth 2.0 user credentials (not service account)');
+  console.log('   - Save as credentials.json in the .secrets directory');
+  console.log('   - See project README.md for detailed instructions');
 };
 
 // Run setup

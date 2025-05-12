@@ -45,6 +45,14 @@ jest.mock('pdf-lib', () => {
 });
 
 describe('PDF Utils', () => {
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    console.error.mockRestore();
+  });
+
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();

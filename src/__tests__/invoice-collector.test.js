@@ -22,6 +22,13 @@ jest.mock('fs', () => ({
   readFileSync: jest.fn(),
 }));
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  console.error.mockRestore();
+});
+
 describe('Invoice Collector', () => {
   beforeEach(() => {
     // Reset all mocks

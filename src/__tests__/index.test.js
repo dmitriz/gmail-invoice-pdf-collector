@@ -43,6 +43,13 @@ jest.mock('../utils/logger', () => ({
 jest.mock('../mocks/mock-gmail', () => ({}));
 jest.mock('../mocks/mock-llm', () => ({}));
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  console.error.mockRestore();
+});
+
 describe('Index Module', () => {
   beforeEach(() => {
     jest.clearAllMocks();

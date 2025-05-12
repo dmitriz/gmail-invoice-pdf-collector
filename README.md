@@ -118,11 +118,31 @@ npm install
 
 ### 2. Google Cloud Credentials (for real mode)
 
-- Create a project at <https://console.cloud.google.com/>
-- Enable the Gmail API
-- Create OAuth 2.0 credentials
-- Download `credentials.json` and place it in the `.secrets` directory
-- The `.secrets` directory is excluded from version control
+1. Create a project at [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable the Gmail API for your project
+3. Create OAuth 2.0 credentials:
+   - Select "Desktop app" as the application type
+   - __Important:__ Use OAuth 2.0 user credentials, NOT service accounts
+   - Service accounts cannot access user Gmail data
+4. Set up your credentials file:
+   - Make a copy of `.secrets/credentials.template.js` and name it `.secrets/credentials.js`
+   - Replace the placeholder values with your actual OAuth credentials
+   - Format:
+
+   ```javascript
+   module.exports = {
+     installed: {
+       client_id: "YOUR_CLIENT_ID_HERE", 
+       project_id: "YOUR_PROJECT_ID_HERE", 
+       client_secret: "YOUR_CLIENT_SECRET_HERE",
+       redirect_uris: ["urn:ietf:wg:oauth:2.0:oob"]
+     }
+   };
+   ```
+
+5. The `.secrets` directory is excluded from version control for security
+
+Note: When you first run the application in real mode, it will prompt you to authorize access to your Gmail account by opening a browser window.
 
 ### 3. Run Application
 
