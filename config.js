@@ -62,10 +62,10 @@ const defaultConfig = {
    */
   gmail: {
     /**
-     * Path to credentials file
+     * Path to credentials file (.js or .json)
      * @type {string}
      */
-    credentialsPath: './.secrets/credentials.json',
+    credentialsPath: './.secrets/credentials.js',
     
     /**
      * Path to token file
