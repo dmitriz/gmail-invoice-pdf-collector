@@ -5,6 +5,13 @@ const fs = require('fs');
 const path = require('path');
 const { PDFDocument } = require('pdf-lib');
 
+/**
+ * Creates a PDF file with the specified name and text content in the `mock-data/sample-pdfs` directory.
+ *
+ * @param {string} name - The filename for the generated PDF.
+ * @param {string} text - The text to be added to the PDF page.
+ * @returns {Promise<void>}
+ */
 async function createSamplePdf(name, text) {
   console.log(`Creating sample PDF: ${name}`);
   
@@ -22,6 +29,11 @@ async function createSamplePdf(name, text) {
   console.log(`Created ${outputPath} (${pdfBytes.length} bytes)`);
 }
 
+/**
+ * Generates sample PDF files for testing by ensuring the target directory exists and creating example documents.
+ *
+ * @returns {Promise<void>}
+ */
 async function main() {
   // Make sure the directory exists
   const dir = path.join(__dirname, 'mock-data', 'sample-pdfs');
