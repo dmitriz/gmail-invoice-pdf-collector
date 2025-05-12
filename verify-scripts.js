@@ -38,7 +38,8 @@ if (packageJson.scripts['start:mock'] && packageJson.scripts['start:mock'].inclu
 }
 
 // Verify that dev script references start:mock
-if (packageJson.scripts.dev && packageJson.scripts.dev.includes('start:mock')) {
+// Verify that dev script references start:mock
+if (packageJson.scripts?.dev?.includes('start:mock')) {
   console.log('✅ npm run dev correctly references start:mock');
 } else {
   console.log('❌ npm run dev does not reference start:mock');
