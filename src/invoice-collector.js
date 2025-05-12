@@ -215,13 +215,15 @@ const processInvoices = async ({
       logger.info(`Merging ${allDownloadedPdfs.length} PDFs into single file`);
 
       // Verify that all PDF paths exist
-      const validPdfPaths = allDownloadedPdfs.filter((pdfPath) => {
-        const exists = fs.existsSync(pdfPath);
-        if (!exists) {
+      const validPdfPaths = [];
+      for (const pdfPath of allDownloadedPdfs) {
+        try {
+          await fs.promises.access(pdfPath, fs.constants.F_OK);
+          validPdfPaths.push(pdfPath);
+        } catch {
           logger.warn(`PDF file not found: ${pdfPath}`);
         }
-        return exists;
-      });
+      }
 
       if (validPdfPaths.length === 0) {
         logger.error('No valid PDF files to merge');
