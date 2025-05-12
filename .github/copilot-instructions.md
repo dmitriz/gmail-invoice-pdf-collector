@@ -41,7 +41,6 @@ When terminal scripts are required:
 
 - Avoid redundant or conflicting ESLint configs. Stick to one, preferably `.eslintrc.js`, or none at all.
 
-# GitHub Copilot Instructions
 
 [STRICT ENFORCEMENT]
 If these guidelines are not followed:
