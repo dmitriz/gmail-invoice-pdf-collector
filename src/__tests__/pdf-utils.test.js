@@ -178,5 +178,40 @@ describe('PDF Utils', () => {
       expect(result.results.successfulMerges).toBe(1);
       expect(result.results.failedMerges).toBe(1);
     });
+
+    it('should properly await and use PDF bytes from save() method', async () => {
+      // Setup
+      const pdfPaths = ['/test/pdf/file1.pdf', '/test/pdf/file2.pdf'];
+      const outputPath = '/test/output/merged.pdf';
+      path.dirname.mockReturnValueOnce('/test/output');
+      
+      // Create mock PDF document with custom save implementation
+      const customMockPdfDoc = {
+        copyPages: jest.fn().mockResolvedValue([{}, {}]),
+        getPageIndices: jest.fn().mockReturnValue([0, 1]),
+        addPage: jest.fn(),
+        save: jest.fn().mockResolvedValue(Buffer.from('special test pdf bytes')),
+      };
+      
+      // Replace the PDFDocument.create mock for this test
+      const originalPdfDocCreate = require('pdf-lib').PDFDocument.create;
+      require('pdf-lib').PDFDocument.create = jest.fn().mockResolvedValue(customMockPdfDoc);
+
+      try {
+        // Execute
+        const result = await mergePdfs({ pdfPaths, outputPath });
+        
+        // Verify
+        expect(result.success).toBe(true);
+        expect(customMockPdfDoc.save).toHaveBeenCalled();
+        expect(fs.writeFileSync).toHaveBeenCalledWith(
+          outputPath,
+          Buffer.from('special test pdf bytes')
+        );
+      } finally {
+        // Restore the original mock
+        require('pdf-lib').PDFDocument.create = originalPdfDocCreate;
+      }
+    });
   });
 });

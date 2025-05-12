@@ -4,21 +4,20 @@
   "description": "A tool to collect and merge invoice PDFs from Gmail",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
+    "start:mock": "node src/index.js --test-mode",
+    
     "test": "jest",
-    "test:full": "jest --coverage",
+    "test:unit": "jest --testPathIgnorePatterns=integration.test.js",
+    "test:integration": "jest src/__tests__/integration.test.js",
+    "test:coverage": "jest --coverage",
+    
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
     "format": "prettier --write src",
-    "start": "node src/index.js",
-    "start:test": "node src/index.js --test-mode",
-    "validate": "npm run format && npm run lint:fix && npm run test",
-    "verify-and-run": "npm run validate && npm run start",
-    "auto-validate": "npm run format && npm run lint:fix && npm run test:full",
-    "setup": "node project-manager.js setup",
-    "check": "node project-manager.js check",
-    "clean": "node project-manager.js clean",
-    "fix": "node project-manager.js fix",
-    "full-cycle": "node project-manager.js full-cycle"
+    
+    "validate": "npm run lint && npm run test",
+    "dev": "npm run format && npm run lint:fix && npm run test && npm run start:mock"
   },
   "repository": {
     "type": "git",

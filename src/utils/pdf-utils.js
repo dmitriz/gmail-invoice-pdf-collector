@@ -71,14 +71,37 @@ const savePdf = async ({ pdfBuffer, outputPath }) => {
  */
 const processSinglePdf = async ({ pdfPath, targetDoc }) => {
   try {
+    // Check if file exists
+    if (!fs.existsSync(pdfPath)) {
+      return {
+        success: false,
+        error: new Error(`PDF file does not exist: ${pdfPath}`),
+      };
+    }
+    
     // Read the PDF file
     const pdfBytes = fs.readFileSync(pdfPath);
+    
+    if (!pdfBytes || pdfBytes.length === 0) {
+      return {
+        success: false,
+        error: new Error(`Empty PDF file: ${pdfPath}`),
+      };
+    }
 
     // Load the PDF document
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
     // Copy pages from the source PDF to the target PDF
     const copiedPages = await targetDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+    
+    if (copiedPages.length === 0) {
+      return {
+        success: false,
+        error: new Error(`No pages found in PDF: ${pdfPath}`),
+      };
+    }
+    
     copiedPages.forEach((page) => {
       targetDoc.addPage(page);
     });
@@ -134,13 +157,21 @@ const mergePdfs = async ({ pdfPaths, outputPath }) => {
     if (results.successfulMerges === 0) {
       return {
         success: false,
-        error: new Error('No PDFs were successfully processed for merging'),
+        error: new Error(`No PDFs were successfully processed for merging. Errors: ${results.errors.join('; ')}`),
         results,
       };
     }
 
     // Serialize the merged PDF to bytes
     const mergedPdfBytes = await mergedPdf.save();
+    
+    if (!mergedPdfBytes || mergedPdfBytes.length === 0) {
+      return {
+        success: false,
+        error: new Error('Failed to generate PDF bytes from merged document'),
+        results,
+      };
+    }
 
     // Ensure output directory exists
     const dir = path.dirname(outputPath);

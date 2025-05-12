@@ -16,13 +16,11 @@ const { logger } = require('./utils/logger');
  */
 const initializeServices = (config) => {
   if (config.realMode) {
-    // Real mode is not yet implemented
-    logger.warn('Real mode is selected but not yet implemented');
-    logger.warn('Falling back to mock mode');
-    // In the future, we would initialize real services here
+    // Real mode requires API access which is not yet set up
+    throw new Error('Real mode requires API access which has not been set up. Please use --test-mode flag for mock functionality.');
   }
 
-  // For now, always return mock services
+  // Return mock services for test mode
   const mockGmail = require('./mocks/mock-gmail');
   const mockLlm = require('./mocks/mock-llm');
 
@@ -45,7 +43,7 @@ const run = async (options = {}) => {
     logger.info('Starting Gmail Invoice PDF Collector');
     logger.info(`Mode: ${config.realMode ? 'Real' : 'Mock'}`);
 
-    // Initialize services based on configuration
+    // This will throw if real mode is selected without API access
     const { gmailService, llmService } = initializeServices(config);
 
     // Process invoices using the functional approach
@@ -95,7 +93,14 @@ if (require.main === module) {
 
   logger.info(`Running in ${isTestMode ? 'TEST' : 'PRODUCTION'} mode`);
 
-  run({ config }).catch((error) => {
+  run({ config }).then(result => {
+    if (!result.success) {
+      logger.error(`Application failed: ${result.error}`);
+      process.exit(1);
+    } else {
+      logger.info('Application completed successfully');
+    }
+  }).catch((error) => {
     logger.error(`Fatal error: ${error.message}`);
     process.exit(1);
   });

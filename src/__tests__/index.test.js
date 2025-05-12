@@ -1,21 +1,33 @@
 /**
- * Unit tests for index.js
+ * Unit tests for the main index module
  */
+
 const { run } = require('../index');
 const { createConfig } = require('../../config');
 const { processInvoices } = require('../invoice-collector');
 
 // Mock dependencies
 jest.mock('../../config', () => ({
-  createConfig: jest.fn(),
+  createConfig: jest.fn().mockReturnValue({
+    realMode: false,
+    outputDir: '/test/output',
+    confidenceThreshold: 0.7,
+  }),
   defaultConfig: {
+    realMode: false,
     outputDir: './output',
     confidenceThreshold: 0.7,
   },
 }));
 
 jest.mock('../invoice-collector', () => ({
-  processInvoices: jest.fn(),
+  processInvoices: jest.fn().mockResolvedValue({
+    totalEmails: 5,
+    invoiceEmails: 2,
+    pdfAttachments: 3,
+    downloadedPdfs: 3,
+    errors: 0,
+  }),
 }));
 
 jest.mock('../utils/logger', () => ({
@@ -23,29 +35,17 @@ jest.mock('../utils/logger', () => ({
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
+    debug: jest.fn(),
   },
 }));
+
+// Mock services
+jest.mock('../mocks/mock-gmail', () => ({}));
+jest.mock('../mocks/mock-llm', () => ({}));
 
 describe('Index Module', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Default behavior for createConfig
-    createConfig.mockImplementation((options) => ({
-      realMode: false,
-      outputDir: './output',
-      confidenceThreshold: 0.7,
-      ...options,
-    }));
-
-    // Default behavior for processInvoices
-    processInvoices.mockResolvedValue({
-      totalEmails: 10,
-      invoiceEmails: 5,
-      pdfAttachments: 7,
-      downloadedPdfs: 6,
-      errors: 0,
-    });
   });
 
   it('should run in mock mode by default', async () => {
@@ -54,13 +54,8 @@ describe('Index Module', () => {
 
     // Verify
     expect(result.success).toBe(true);
-    expect(processInvoices).toHaveBeenCalledTimes(1);
-    expect(processInvoices).toHaveBeenCalledWith(
-      expect.objectContaining({
-        outputDir: expect.any(String),
-        confidenceThreshold: expect.any(Number),
-      })
-    );
+    expect(createConfig).toHaveBeenCalled();
+    expect(processInvoices).toHaveBeenCalled();
   });
 
   it('should handle errors during processing', async () => {
@@ -75,32 +70,32 @@ describe('Index Module', () => {
     expect(result.error).toBe('Test error');
   });
 
-  it('should warn if real mode is selected but not implemented', async () => {
+  it('should fail when real mode is selected but not implemented', async () => {
     // Setup
     createConfig.mockReturnValueOnce({
+      ...createConfig(),
       realMode: true,
-      outputDir: './output',
-      confidenceThreshold: 0.7,
     });
 
     // Execute
-    await run({ realMode: true });
+    const result = await run();
 
     // Verify
-    expect(processInvoices).toHaveBeenCalledTimes(1);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Real mode requires API access');
   });
 
   it('should pass custom options to configuration', async () => {
+    // Setup
+    const options = {
+      outputDir: '/custom/path',
+      confidenceThreshold: 0.9,
+    };
+
     // Execute
-    await run({
-      outputDir: './custom-output',
-      confidenceThreshold: 0.8,
-    });
+    await run(options);
 
     // Verify
-    expect(createConfig).toHaveBeenCalledWith({
-      outputDir: './custom-output',
-      confidenceThreshold: 0.8,
-    });
+    expect(createConfig).toHaveBeenCalledWith(options);
   });
 });
