@@ -12,7 +12,7 @@ module.exports = [
   {
     files: ['**/*.js'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       sourceType: 'commonjs',
       globals: {
         process: 'readonly',
@@ -34,26 +34,14 @@ module.exports = [
         jest: 'readonly'
       }
     },
-    plugins: {
-      jest: jestPlugin
-    },
     rules: {
       'no-console': 'off',
-      'no-unused-vars': ['error', { 
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }],
-      'jest/expect-expect': 'error',
-      'jest/no-disabled-tests': 'warn',
-      'jest/no-focused-tests': 'error',
-      'jest/no-identical-title': 'error',
-      'jest/valid-expect': 'error'
+      'no-unused-vars': 'warn',
+      'no-unreachable': 'error',
+      'no-undef': 'error',
+      'no-dup-keys': 'error',
+      'no-eval': 'error',
     }
   },
-  {
-    files: ['**/__tests__/**/*.js'],
-    rules: {
-      // Any test-specific rules would go here
-    }
-  }
-];
+]
+

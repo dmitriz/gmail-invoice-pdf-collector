@@ -3,10 +3,8 @@
  * These tests simulate the actual running of the application
  */
 
-const path = require('path');
 const fs = require('fs');
 const { run } = require('../index');
-const config = require('../../config');
 
 // Mock dependencies
 jest.mock('../utils/logger', () => ({
@@ -27,7 +25,7 @@ jest.mock('fs', () => {
 
   return {
     existsSync: jest.fn((path) => !!virtualFileSystem[path]),
-    mkdirSync: jest.fn((path, options) => {
+    mkdirSync: jest.fn((path, _options) => {
       virtualFileSystem[path] = 'directory';
       return true;
     }),
@@ -109,7 +107,7 @@ jest.mock('../mocks/mock-gmail', () => ({
       },
     ],
   }),
-  getAttachment: jest.fn().mockImplementation(({ emailId, attachmentName }) => {
+  getAttachment: jest.fn().mockImplementation(({ _emailId, attachmentName }) => {
     return Promise.resolve({
       success: true,
       data: Buffer.from(`mock content for ${attachmentName}`),
