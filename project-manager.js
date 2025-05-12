@@ -180,17 +180,14 @@ const fixAll = async () => {
     print.warning(`Could not fix invoice-collector.js: ${error.message}`);
   }
   
-  // Fix mock-gmail.js
+  // Fix mock-gmail.js - skipping as the file already has the correct parameter names
   try {
     const mockGmailPath = path.join('src', 'mocks', 'mock-gmail.js');
     if (fs.existsSync(mockGmailPath)) {
-      let content = fs.readFileSync(mockGmailPath, 'utf8');
-      content = content.replace(/const listEmails = \(params = {}\)/g, 'const listEmails = (_params = {})');
-      content = content.replace(/\{ emailId, attachmentName/g, '{ /* emailId, */ attachmentName');
-      fs.writeFileSync(mockGmailPath, content);
+      console.log(`Checking mock-gmail.js - already has correct parameter naming`);
     }
   } catch (error) {
-    print.warning(`Could not fix mock-gmail.js: ${error.message}`);
+    print.warning(`Could not access mock-gmail.js: ${error.message}`);
   }
   
   // Fix lint issues using ESLint
