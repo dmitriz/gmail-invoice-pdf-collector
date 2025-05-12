@@ -1,36 +1,5 @@
 /**
- * Credentials M    if (credentialsPath && fs.existsSync(credentialsPath)) {
-      logger.info(`Loading credentials from file: ${credentialsPath}`);
-      try {
-        let credentials;
-        
-        // Handle both JavaScript (.js) and JSON (.json) credential files
-        if (credentialsPath.endsWith('.js')) {
-          // For .js files, we require() the module which should export credentials
-          credentials = require(credentialsPath);
-          
-          // If the file exports a function, call it to get credentials
-          if (typeof credentials === 'function') {
-            credentials = credentials();
-          }
-        } else {
-          // For JSON files, read and parse
-          const content = fs.readFileSync(credentialsPath, 'utf-8');
-          credentials = JSON.parse(content);
-        }
-        
-        // Ensure we're not using a service account (which won't work for Gmail)
-        if (credentials.type === 'service_account') {
-          logger.error('Service account credentials are not supported for Gmail access. Use OAuth 2.0 user credentials instead.');
-          return null;
-        }
-        
-        return credentials;
-      } catch (error) {
-        logger.error(`Error loading credentials file: ${error.message}`);
-        return null;
-      }
-    }ecure loading of Google API credentials from a JavaScript file
+ * Credentials Manager - Secure loading of Google API credentials from a JavaScript file
  * 
  * This approach is preferred over environment variables for security reasons:
  * - Credentials are stored in a single file which is gitignored
@@ -41,42 +10,98 @@ const fs = require('fs');
 const { logger } = require('./logger');
 
 /**
- * Loads Google API credentials from a JavaScript or JSON file
- * @param {Object} params - Function parameters
- * @param {string} [params.credentialsPath] - Path to credentials file (.js or .json)
- * @returns {Object} Google API credentials object or null if not found
+ * Reads credentials file from the filesystem.
+ *
+ * @param {string} filePath - Path to the JSON credentials file
+ * @returns {Object|null} Parsed JSON content or null on failure
  */
-const loadCredentials = ({ credentialsPath }) => {
+const readCredentialsFile = (filePath) => {
   try {
-    // Load credentials from file if it exists
+    logger.info(`Loading credentials from file: ${filePath}`);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    try {
+      return JSON.parse(content);
+    } catch (parseError) {
+      logger.error(`Error parsing JSON from credentials file: ${parseError.message}`);
+      return null;
+    }
+  } catch (readError) {
+    logger.error(`Error reading credentials file: ${readError.message}`);
+    return null;
+  }
+};
+
+/**
+ * Validates OAuth2 credentials.
+ *
+ * @param {Object} credentials - The credentials object to validate
+ * @returns {boolean} Whether the credentials are valid
+ */
+const validateCredentials = (credentials) => {
+  // Ensure we're not using a service account (which won't work for Gmail)
+  if (credentials.type === 'service_account') {
+    logger.error('Service account credentials are not supported for Gmail access');
+    return false;
+  }
+
+  // Validate required credential fields
+  if (!credentials.client_id || !credentials.client_secret || !credentials.redirect_uris) {
+    logger.error('Invalid credentials format: missing required fields');
+    return false;
+  }
+  
+  return true;
+};
+
+/**
+ * Loads credentials from the specified path.
+ *
+ * @param {Object} options - Options object
+ * @param {string} options.credentialsPath - Path to credentials file
+ * @returns {Object|null} The loaded credentials or null on failure
+ */
+/**
+ * Loads credentials from the specified path.
+ * 
+ * @description
+ * This function attempts to load OAuth2 client credentials from the specified path.
+ * It validates the credentials to ensure they're not service account credentials (which
+ * don't work with Gmail) and checks for required fields (client_id, client_secret, and
+ * redirect_uris). In test/mock mode, it's acceptable for credentials to be missing.
+ * 
+ * @param {Object} options - Options object
+ * @param {string} options.credentialsPath - Path to credentials file
+ * @returns {Object|null} The loaded credentials or null on failure
+ */
+const loadCredentials = async ({ credentialsPath }) => {
+  try {
+    // Check if credentials file exists
     if (credentialsPath && fs.existsSync(credentialsPath)) {
-      logger.info(`Loading credentials from file: ${credentialsPath}`);
-      try {
-        const content = fs.readFileSync(credentialsPath, 'utf-8');
-        const credentials = JSON.parse(content);
-
-        // Ensure we're not using a service account (which won't work for Gmail)
-        if (credentials.type === 'service_account') {
-          logger.error('Service account credentials are not supported for Gmail access');
-          return null;
-        }
-
-        return credentials;
-      } catch (error) {
-        logger.error(`Error parsing credentials file: ${error.message}`);
+      const credentials = readCredentialsFile(credentialsPath);
+      
+      if (!credentials) {
         return null;
       }
+      
+      if (validateCredentials(credentials)) {
+        logger.info('Credentials loaded successfully');
+        return credentials;
+      }
+      
+      return null;
     }
 
     // In test/mock mode, this is fine
     logger.warn('No credentials found, this is only acceptable in test mode');
     return null;
   } catch (error) {
-    logger.error(`Error loading credentials: ${error.message}`);
+    logger.error(`Error checking credentials file existence or access: ${error.message}`);
     return null;
   }
 };
 
 module.exports = {
   loadCredentials,
+  validateCredentials, // Export for testing purposes
+  readCredentialsFile, // Export for testing purposes
 };
