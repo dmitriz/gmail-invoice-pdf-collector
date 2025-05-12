@@ -1,17 +1,17 @@
 [
   {
     "subject": "Invoice for April",
-    "body": "Please find attached the invoice for April.",
+    "body": "Please find attached your invoice",
     "attachments": ["invoice1.pdf"]
   },
   {
     "subject": "Weekly Update",
-    "body": "Here's what happened this week.",
+    "body": "Here are the notes from our meeting",
     "attachments": []
   },
   {
     "subject": "Your Receipt",
-    "body": "Thanks for your purchase.",
-    "attachments": ["receipt2.pdf", "promo.jpg"]
+    "body": "Thank you for your purchase. Please find attached your receipt.",
+    "attachments": ["receipt2.pdf"]
   }
 ]

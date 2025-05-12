@@ -1,0 +1,8 @@
+[33mcommit be9ca4de21ad21c79a0f9f10bcb506d2e75740c6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfix-hardcoded-secrets[m[33m, [m[1;31morigin/functional-style[m[33m, [m[1;32mfunctional-style[m[33m)[m
+Author: dmitriz <dmitri14@gmail.com>
+Date:   Mon May 12 14:50:23 2025 +0700
+
+    Add GitHub Copilot Task Workflow Guide with detailed steps for task management
+
+ ...ot-instructions.md | 49 [32m++++++[m
+ 1 file changed, 49 insertions(+)

@@ -1,0 +1,41 @@
+{
+  "name": "gmail-invoice-pdf-collector",
+  "version": "1.0.0",
+  "description": "A tool to collect and merge invoice PDFs from Gmail",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:mock": "node src/index.js --test-mode",
+    "test": "npm run test:unit && npm run test:integration && jest --coverage",
+    "test:unit": "jest --testPathIgnorePatterns=integration.test.js",
+    "test:integration": "jest src/__tests__/integration.test.js",
+    "dev": "npm run test:unit && npm run start:mock",
+    "fix:prefix-unused": "node scripts/prefix-unused-vars.js && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmitriz/gmail-invoice-pdf-collector.git"
+  },
+  "keywords": [
+    "gmail",
+    "invoice",
+    "pdf",
+    "collector"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dmitriz/gmail-invoice-pdf-collector/issues"
+  },
+  "homepage": "https://github.com/dmitriz/gmail-invoice-pdf-collector#readme",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "googleapis": "^105.0.0",
+    "nodemailer": "^6.8.0",
+    "pdf-lib": "^1.17.1",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
+  }
+}
