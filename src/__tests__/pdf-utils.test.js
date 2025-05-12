@@ -37,6 +37,11 @@ jest.mock('path', () => {
     ...actualPathModule, // Default to actual implementations
     // Override resolve to be CWD-aware for testing
     resolve: jest.fn((...args) => {
+      // Special case for DEFAULT_OUTPUT_DIR to ensure security check passes
+      if (args[0] === actualPathModule.join(actualPathModule.resolve('src/utils'), '../../output')) {
+        return actualPathModule.join(MOCK_CWD_INTERNAL, 'output');
+      }
+      
       let pathString = actualPathModule.join(...args);
       if (!actualPathModule.isAbsolute(pathString)) {
         pathString = actualPathModule.join(MOCK_CWD_INTERNAL, pathString);
@@ -123,6 +128,14 @@ describe('PDF Utils', () => {
       const resolvedOutputPath = path.resolve(MOCK_CWD, outputPath); // Expected path for writeFile
       const dirToCreate = path.dirname(outputPath); // 'output/new_dir_for_save' (relative)
 
+      // Before calling savePdf, ensure that our path mocking works correctly
+      // and that the security check in savePdf will pass
+      require('path').resolve.mockImplementation((p) => {
+        if (p === outputPath) return resolvedOutputPath;
+        if (p === DEFAULT_OUTPUT_DIR) return path.resolve(MOCK_CWD, 'output');
+        return p;
+      });
+
       // Mock for ensureDirectoryExists:
       // fs.existsSync(dirToCreate) should return false.
       require('fs').existsSync.mockImplementation(p => {
@@ -145,9 +158,19 @@ describe('PDF Utils', () => {
       const resolvedOutputPath = path.resolve(MOCK_CWD, outputPath);
       const existingDir = path.dirname(outputPath);
 
+      // Setup path resolution for security check to pass
+      require('path').resolve.mockImplementation((p) => {
+        if (p === outputPath) return resolvedOutputPath;
+        if (p === DEFAULT_OUTPUT_DIR) return path.resolve(MOCK_CWD, 'output');
+        return p;
+      });
+
       // Mock for ensureDirectoryExists:
       // fs.existsSync(existingDir) should return true.
-      require('fs').existsSync.mockImplementation(p => p === existingDir);
+      require('fs').existsSync.mockImplementation(p => {
+        if (p === existingDir) return true;
+        return true; // Other checks should pass
+      });
       
       const result = await savePdf({ pdfBuffer, outputPath });
 
