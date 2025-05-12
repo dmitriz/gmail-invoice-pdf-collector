@@ -91,7 +91,7 @@ if (require.main === module) {
   const options = { realMode: !isTestMode };
 
   // Execute main function with options
-  run(options)
+  run(options);
   logger.info(`Running in ${isTestMode ? 'TEST' : 'PRODUCTION'} mode`);
 
   // Execute main function

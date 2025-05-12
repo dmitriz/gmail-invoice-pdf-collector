@@ -56,6 +56,7 @@ const savePdf = async ({ pdfBuffer, outputPath }) => {
     }
     // Write the PDF buffer to file asynchronously
     await fs.promises.writeFile(safeOutputPath, pdfBuffer);
+    return {
       success: true,
       outputPath,
       message: `PDF successfully saved to ${outputPath}`,
