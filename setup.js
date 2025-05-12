@@ -156,19 +156,18 @@ Note: All files in this directory are gitignored for your security.
         console.log(\`Created sample PDF: \${filePath}\`);
       }
       
-      // Create invoice1.pdf
-      createSamplePdf(
-        path.join('${mockPdfsDir}', 'invoice1.pdf'),
-        'INVOICE #2023-001',
-        'This is a sample invoice PDF file for testing the Gmail Invoice PDF Collector.'
-      );
-      
-      // Create receipt2.pdf  
-      createSamplePdf(
-        path.join('${mockPdfsDir}', 'receipt2.pdf'),
-        'RECEIPT #43567',
-        'This is a sample receipt PDF file for testing the Gmail Invoice PDF Collector.'
-      );
+      (async () => {
+        await createSamplePdf(
+          path.join('${mockPdfsDir}', 'invoice1.pdf'),
+          'INVOICE #2023-001',
+          'This is a sample invoice PDF file for testing the Gmail Invoice PDF Collector.'
+        );
+        await createSamplePdf(
+          path.join('${mockPdfsDir}', 'receipt2.pdf'),
+          'RECEIPT #43567',
+          'This is a sample receipt PDF file for testing the Gmail Invoice PDF Collector.'
+        );
+      })();
     `;
     
     // Create a temporary file
