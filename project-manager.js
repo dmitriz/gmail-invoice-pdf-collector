@@ -211,14 +211,14 @@ const clean = async () => {
   }
   
   // Clean output
-  print.info('Cleaning output files...');
+  print.info('Cleaning output files asynchronously...');
   const pdfDir = 'output/pdfs';
-  if (fs.existsSync(pdfDir)) {
-    const files = fs.readdirSync(pdfDir);
-    files.forEach(file => {
-      const filePath = path.join(pdfDir, file);
-      fs.unlinkSync(filePath);
-    });
+  try {
+    const files = await fs.promises.readdir(pdfDir);
+    await Promise.all(files.map(file => fs.promises.unlink(path.join(pdfDir, file))));
+  } catch (err) {
+    // Directory does not exist or error reading files, ignore
+  }
   }
   
   // Clean logs
