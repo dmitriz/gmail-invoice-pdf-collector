@@ -5,6 +5,7 @@
 This document describes a minimal, production-oriented system for retrieving invoice and receipt PDFs from a single Gmail account using the Gmail API. The system emphasizes simplicity, maintainability, and fastest time to delivery, with minimal assumptions and no unnecessary complexity.
 
 ### Objectives
+
 - Extract all PDF attachments from emails that likely contain invoices or receipts.
 - Use LLM-assisted filtering (via a prompt) to determine if an email contains an invoice/receipt.
 - Merge all valid PDFs into a single output file.
@@ -12,6 +13,7 @@ This document describes a minimal, production-oriented system for retrieving inv
 - Enable mock-based development with no real Gmail or LLM access required.
 
 ### Assumptions
+
 - A single Gmail account is used (no multi-user support).
 - Only PDF attachments are handled (no conversion from other formats).
 - No metadata or content extraction is performed from the PDFs.
@@ -28,13 +30,15 @@ This document describes a minimal, production-oriented system for retrieving inv
 ## 2. Goals & Objectives
 
 ### Goals
+
 - Retrieve all emails from Gmail.
 - Identify invoice/receipt-related emails using LLM prompts.
 - Download all PDF attachments from relevant emails.
 - Merge the PDFs into a single file.
 - Log all successes, failures, and skipped items.
 
-### Objectives
+### Project Objectives
+
 - Fast MVP delivery with minimal logic.
 - No database or cloud services.
 - Pure CLI execution.
@@ -45,6 +49,7 @@ This document describes a minimal, production-oriented system for retrieving inv
 ## 3. Scope
 
 ### In Scope
+
 - Access Gmail via API or mock.
 - Identify relevant emails using LLM prompt-based filtering.
 - Download and merge only PDF attachments.
@@ -52,6 +57,7 @@ This document describes a minimal, production-oriented system for retrieving inv
 - Provide logs for skipped or errored items.
 
 ### Out of Scope
+
 - Any form of structured data extraction from PDF
 - Multi-user handling
 - UI or Web deployment
@@ -72,8 +78,10 @@ This document describes a minimal, production-oriented system for retrieving inv
 6. **Log** any issues and output stats.
 
 ### LLM Prompt Structure
+
 - Input: subject + body text
 - Output:
+
 ```json
 {
   "is_invoice": true,
@@ -81,33 +89,41 @@ This document describes a minimal, production-oriented system for retrieving inv
   "reason": "Identified keywords like 'invoice', 'payment', 'total'"
 }
 ```
+
 Format can be swapped or extended later
+
 ## 5. Implementation
 
 ### 5.1 Mock System
+
 - Mock email set (emails.json)
 - Mock LLM responses
 - Local test PDFs
 
 ### 5.2 LLM Filter Logic
+
 - Accept email text
 - Return static classification results
 
 ### 5.3 PDF Collection & Merge
+
 - Loop through mock responses
 - Collect PDFs and merge valid ones
 - Skip malformed or unreadable files
 
 ### 5.4 End-to-End Local Flow
+
 - Chain the above into a single script
 - Add logging and output handling
 
 ### 5.5 Real Integration
+
 - Connect to Gmail API
 - Connect to hosted LLM API (GitHub-based)
 - Swap mocks with real functions
 
 ### 5.6 Package
+
 - Final README.md
 - CLI command with optional flags
 - Output folder and logs
@@ -117,14 +133,17 @@ Mock LLM responses
 Local test PDFs
 
 ### Step 2: LLM Filter Logic
+
 Accept email text
 
 Return static classification results
 
 ### Step 3: PDF Collection & Merge
+
 Loop through mock responses
 
 Collect PDFs and merge valid ones
+
 - Use `pdf-lib` or similar JavaScript library to handle PDF operations
 - Implement try/catch blocks to catch PDF processing errors
 - Track successfully processed PDFs vs failures
@@ -132,11 +151,13 @@ Collect PDFs and merge valid ones
 Skip malformed or unreadable files
 
 ### Step 4: End-to-End Local Flow
+
 Chain the above into a single script
 
 Add logging and output handling
 
 ### Step 5: Real Integration
+
 Connect to Gmail API using OAuth 2.0 with tokens stored securely in environment variables or a secrets manager.
 
 Connect to hosted LLM API (GitHub-based)
@@ -144,6 +165,7 @@ Connect to hosted LLM API (GitHub-based)
 Swap mocks with real functions
 
 ### Step 6: Package
+
 Final README.md
 
 CLI command with optional flags
@@ -169,6 +191,7 @@ Output folder and logs
 ## 7. Gathering Results
 
 ### Success Criteria
+
 PDFs merged correctly from identified emails
 
 Script runs fully with one command
@@ -178,6 +201,7 @@ No user interaction needed after setup
 No email data modified or deleted
 
 ### Evaluation
+
 Validate on known test set
 
 Manual log review

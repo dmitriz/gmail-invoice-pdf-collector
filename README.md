@@ -3,6 +3,7 @@
 This tool retrieves emails from a Gmail account, identifies invoices and receipts using a lightweight LLM, downloads all PDF attachments, and merges them into one consolidated PDF file.
 
 ## Features
+
 - Fetch all emails from a Gmail account
 - Use LLM to classify relevant messages (invoice/receipt)
 - Download PDF attachments from filtered emails
@@ -13,6 +14,7 @@ This tool retrieves emails from a Gmail account, identifies invoices and receipt
 ## Project Architecture
 
 This project follows a functional programming approach with these key principles:
+
 - Pure functions with single object arguments and returns
 - No classes or `this` usage
 - Explicit error handling with result objects
@@ -59,7 +61,30 @@ npm run test:coverage
 ```
 
 ### Directory Structure
-```
+
+├── config.js                 # Central configuration
+├── mock-data/                # Mock data for testing
+│   ├── emails.json           # Sample email data
+│   └── sample-pdfs/          # Sample PDF files
+├── output/                   # Output directory for PDFs
+│   └── pdfs/                 # Individual PDFs before merging
+├── run-logs/                 # Application logs
+├── .secrets/                 # Credentials storage (gitignored)
+└── src/
+    ├── index.js              # Application entry point
+    ├── invoice-collector.js  # Core invoice collection logic
+    ├── __tests__/            # Unit tests
+    │   ├── invoice-collector.test.js
+    │   ├── mock-llm.test.js
+    │   └── pdf-utils.test.js
+    ├── mocks/                # Mock implementations
+    │   ├── mock-gmail.js     # Mock Gmail API
+    │   └── mock-llm.js       # Mock LLM service
+    └── utils/                # Utility functions
+        ├── logger.js         # Logging utilities
+        └── pdf-utils.js      # PDF handling utilities
+
+```sh
 ├── config.js                 # Central configuration
 ├── mock-data/                # Mock data for testing
 │   ├── emails.json           # Sample email data
@@ -86,18 +111,21 @@ npm run test:coverage
 ## Setup
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Google Cloud Credentials (for real mode)
-- Create a project at https://console.cloud.google.com/
+
+- Create a project at <https://console.cloud.google.com/>
 - Enable the Gmail API
 - Create OAuth 2.0 credentials
 - Download `credentials.json` and place it in the `.secrets` directory
 - The `.secrets` directory is excluded from version control
 
 ### 3. Run Application
+
 ```bash
 # Run in mock mode (default)
 npm start
@@ -169,6 +197,7 @@ run({
 ## Testing Approach
 
 The project follows these testing principles:
+
 - Unit tests for all core functions
 - No nested describe blocks
 - Clear test names with function name and behavior
@@ -178,6 +207,7 @@ The project follows these testing principles:
 ## Output
 
 When running the application, it produces:
+
 - `output/merged.pdf`: The final merged PDF containing all invoices
 - `output/pdfs/`: Directory containing individual downloaded PDFs
 - `run-logs/app.log`: Full application logs
@@ -186,14 +216,16 @@ When running the application, it produces:
 ## Spec Document
 
 For detailed information about the system design, refer to the [specification document](docs/spec-1-gmail-invoice-pdf-collector.md).
+
 ```bash
 npm test
 ```
 
-- **Mock mode**: Uses sample emails and PDFs (default)
-- **Real mode**: Requires live Gmail and LLM API access (coming soon)
+- __Mock mode__: Uses sample emails and PDFs (default)
+- __Real mode__: Requires live Gmail and LLM API access (coming soon)
 
 ## Outputs
+
 - `output/merged.pdf`: Final merged PDF
 - `output/pdfs/`: Individual downloaded PDFs
 - `run-logs/app.log`: Application logs
