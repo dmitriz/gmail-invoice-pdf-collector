@@ -87,8 +87,11 @@ if (require.main === module) {
   // Check for test mode flag
   const isTestMode = process.argv.includes('--test-mode');
 
-  // Build configuration for execution
-  const config = createConfig({ realMode: !isTestMode });
+  // Build options for execution
+  const options = { realMode: !isTestMode };
+
+  // Execute main function with options
+  run(options)
   logger.info(`Running in ${isTestMode ? 'TEST' : 'PRODUCTION'} mode`);
 
   // Execute main function
