@@ -4,6 +4,7 @@
 const path = require('path');
 const fs = require('fs');
 const { processInvoices, processEmail, initOutputDirs } = require('../invoice-collector');
+const { savePdf } = require('../utils/pdf-utils'); // Import the mocked savePdf
 
 // Mock dependencies
 jest.mock('../utils/logger', () => ({
@@ -13,6 +14,15 @@ jest.mock('../utils/logger', () => ({
     warn: jest.fn(),
   },
 }));
+
+// Add this mock for pdf-utils
+jest.mock('../utils/pdf-utils', () => {
+  const originalModule = jest.requireActual('../utils/pdf-utils');
+  return {
+    ...originalModule,
+    savePdf: jest.fn(), // Mock savePdf
+  };
+});
 
 // Mock file system operations
 jest.mock('fs', () => ({
@@ -39,6 +49,9 @@ describe('Invoice Collector', () => {
 
     // Default behavior for fs.readFileSync (mock PDF data)
     fs.readFileSync.mockReturnValue(Buffer.from('mock pdf content'));
+
+    // Default mock for the imported savePdf function
+    savePdf.mockResolvedValue({ success: true, path: 'mock/output/path.pdf' });
   });
 
   describe('initOutputDirs', () => {
