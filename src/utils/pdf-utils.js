@@ -173,7 +173,7 @@ const mergePdfs = async ({ pdfPaths, outputPath }) => {
     // Serialize the merged PDF to bytes
     const mergedPdfBytes = await mergedPdf.save();
 
-    if (!mergedPdfBytes || mergedPdfBytes.length === 0) {
+    if (!mergedPdfBytes || !(mergedPdfBytes instanceof Uint8Array) || mergedPdfBytes.length === 0) {
       return {
         success: false,
         error: new Error('Failed to generate PDF bytes from merged document'),
