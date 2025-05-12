@@ -4,8 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 // PDFDocument is used implicitly through mocks
+jest.mock('pdf-lib');
 // Avoiding empty object pattern - prefix with underscore to indicate it's unused
-const _pdfLib = require('pdf-lib');
 const {
   savePdf,
   mergePdfs,

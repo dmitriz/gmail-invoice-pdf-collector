@@ -5,7 +5,7 @@
  * downloads PDF attachments, and merges them into a single file.
  */
 const path = require('path');
-const { createConfig, _defaultConfig } = require('../config');
+const { createConfig } = require('../config');
 const { processInvoices } = require('./invoice-collector');
 const { logger } = require('./utils/logger');
 

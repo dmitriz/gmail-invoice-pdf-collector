@@ -9,7 +9,6 @@ const {
   loadMockEmails,
   readJsonFile,
   hasAllowedExtension,
-  _MOCK_DATA_DIR,
 } = require('../mocks/mock-gmail');
 
 // Mock dependencies

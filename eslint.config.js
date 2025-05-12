@@ -36,10 +36,10 @@ module.exports = [
     },
     rules: {
       'no-console': 'off',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { "argsIgnorePattern": "^_" }],
       'no-unreachable': 'error',
       'no-undef': 'error',
-      'no-dup-keys': 'error',
+      'no-dupe-keys': 'error',
       'no-eval': 'error',
     }
   },
