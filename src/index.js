@@ -23,12 +23,12 @@ const initializeServices = (config) => {
   }
   
   // For now, always return mock services
-  const mock-gmail = require('./mocks/mock-gmail');
-  const mock-llm = require('./mocks/mock-llm');
+  const mockGmail = require('./mocks/mock-gmail');
+  const mockLlm = require('./mocks/mock-llm');
   
   return {
-    gmailService: mock-gmail,
-    llmService: mock-llm
+    gmailService: mockGmail,
+    llmService: mockLlm
   };
 };
 

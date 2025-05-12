@@ -75,7 +75,7 @@ describe('Invoice Collector', () => {
         attachments: ['invoice.pdf', 'receipt.pdf']
       };
       
-      const mock-llmService = {
+      const mockLlmService = {
         classifyEmail: jest.fn().mockResolvedValue({
           is_invoice: true,
           confidence: 0.9,
@@ -83,7 +83,7 @@ describe('Invoice Collector', () => {
         })
       };
       
-      const mock-gmailService = {
+      const mockGmailService = {
         getAttachment: jest.fn().mockResolvedValue({
           success: true,
           data: Buffer.from('mock pdf content')
@@ -96,8 +96,8 @@ describe('Invoice Collector', () => {
       const result = await processEmail({
         email: mockEmail,
         index: 0,
-        llmService: mock-llmService,
-        gmailService: mock-gmailService,
+        llmService: mockLlmService,
+        gmailService: mockGmailService,
         pdfsDir: '/test/output/pdfs',
         confidenceThreshold: 0.7,
         stats
@@ -106,8 +106,8 @@ describe('Invoice Collector', () => {
       // Verify
       expect(result.emailProcessed).toBe(true);
       expect(result.downloadedPdfs.length).toBe(2);
-      expect(mock-llmService.classifyEmail).toHaveBeenCalledTimes(1);
-      expect(mock-gmailService.getAttachment).toHaveBeenCalledTimes(2);
+      expect(mockLlmService.classifyEmail).toHaveBeenCalledTimes(1);
+      expect(mockGmailService.getAttachment).toHaveBeenCalledTimes(2);
       expect(stats.invoiceEmails).toBe(1);
       expect(stats.pdfAttachments).toBe(2);
       expect(stats.downloadedPdfs).toBe(2);
@@ -121,7 +121,7 @@ describe('Invoice Collector', () => {
         attachments: ['document.pdf']
       };
       
-      const mock-llmService = {
+      const mockLlmService = {
         classifyEmail: jest.fn().mockResolvedValue({
           is_invoice: false,
           confidence: 0.2,
@@ -129,7 +129,7 @@ describe('Invoice Collector', () => {
         })
       };
       
-      const mock-gmailService = {
+      const mockGmailService = {
         getAttachment: jest.fn()
       };
       
@@ -137,16 +137,16 @@ describe('Invoice Collector', () => {
       const result = await processEmail({
         email: mockEmail,
         index: 0,
-        llmService: mock-llmService,
-        gmailService: mock-gmailService,
+        llmService: mockLlmService,
+        gmailService: mockGmailService,
         pdfsDir: '/test/output/pdfs'
       });
       
       // Verify
       expect(result.emailProcessed).toBe(true);
       expect(result.downloadedPdfs.length).toBe(0);
-      expect(mock-llmService.classifyEmail).toHaveBeenCalledTimes(1);
-      expect(mock-gmailService.getAttachment).not.toHaveBeenCalled();
+      expect(mockLlmService.classifyEmail).toHaveBeenCalledTimes(1);
+      expect(mockGmailService.getAttachment).not.toHaveBeenCalled();
     });
   });
   
@@ -171,7 +171,7 @@ describe('Invoice Collector', () => {
         }
       ];
       
-      const mock-gmailService = {
+      const mockGmailService = {
         listEmails: jest.fn().mockResolvedValue({
           success: true,
           emails: mockEmails
@@ -182,7 +182,7 @@ describe('Invoice Collector', () => {
         })
       };
       
-      const mock-llmService = {
+      const mockLlmService = {
         classifyEmail: jest.fn()
           .mockResolvedValueOnce({
             is_invoice: true,
@@ -203,8 +203,8 @@ describe('Invoice Collector', () => {
       
       // Execute
       const stats = await processInvoices({
-        gmailService: mock-gmailService,
-        llmService: mock-llmService,
+        gmailService: mockGmailService,
+        llmService: mockLlmService,
         outputDir: '/test/output'
       });
       
@@ -213,8 +213,8 @@ describe('Invoice Collector', () => {
       expect(stats.invoiceEmails).toBe(2);
       expect(stats.pdfAttachments).toBe(2);
       expect(stats.downloadedPdfs).toBe(2);
-      expect(mock-gmailService.listEmails).toHaveBeenCalledTimes(1);
-      expect(mock-llmService.classifyEmail).toHaveBeenCalledTimes(3);
+      expect(mockGmailService.listEmails).toHaveBeenCalledTimes(1);
+      expect(mockLlmService.classifyEmail).toHaveBeenCalledTimes(3);
     });
   });
 });

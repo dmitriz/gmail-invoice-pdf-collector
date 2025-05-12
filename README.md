@@ -151,23 +151,6 @@ For detailed information about the system design, refer to the [specification do
 npm test
 ```
 
-## Configuration
-You can customize the application behavior by editing `config.js` or by passing options to the `run()` function:
-
-```javascript
-// Example programmatic usage
-const { run } = require('./src/index');
-
-run({
-  outputDir: './custom-output',
-  confidenceThreshold: 0.8,
-  // See config.js for all available options
-}).then(result => {
-  console.log('Processing finished with result:', result);
-});
-```
-
-## Modes
 - **Mock mode**: Uses sample emails and PDFs (default)
 - **Real mode**: Requires live Gmail and LLM API access (coming soon)
 
@@ -179,4 +162,4 @@ run({
 
 ## Specification
 
-For detailed information about the system, refer to the [SPEC-1: Gmail Invoice PDF Collector](SPEC-1-gmail-invoice-pdf-collector.md).
+For detailed information about the system, refer to the [SPEC-1: Gmail Invoice PDF Collector](docs/spec-1-gmail-invoice-pdf-collector.md).
