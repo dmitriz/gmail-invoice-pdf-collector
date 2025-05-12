@@ -105,40 +105,41 @@ const processEmail = async ({
     stats.pdfAttachments = (stats.pdfAttachments || 0) + pdfAttachments.length;
 
     // Download each PDF attachment
-    for (const attachment of pdfAttachments) {
-      try {
-        logger.info(`Downloading attachment: ${attachment}`);
-
-        // Get attachment data
-        const attachmentResult = await gmailService.getAttachment({
-          emailId: index,
-          attachmentName: attachment,
-        });
-
-        if (!attachmentResult.success) {
-          throw new Error(attachmentResult.error || 'Failed to download attachment');
+    const attachmentPromises = pdfAttachments.map((attachment) =>
+      (async () => {
+        try {
+          logger.info(`Downloading attachment: ${attachment}`);
+          const attachmentResult = await gmailService.getAttachment({
+            emailId: index,
+            attachmentName: attachment,
+          });
+          if (!attachmentResult.success) {
+            throw new Error(attachmentResult.error || 'Failed to download attachment');
+          }
+          const outputPath = path.join(pdfsDir, `${Date.now()}-${attachment}`);
+          const saveResult = await savePdf({
+            pdfBuffer: attachmentResult.data,
+            outputPath,
+          });
+          if (!saveResult.success) {
+            throw new Error(saveResult.error || 'Failed to save PDF');
+          }
+          logger.info(`Saved PDF: ${outputPath}`);
+          return outputPath;
+        } catch (attachError) {
+          logger.error(`Error processing attachment ${attachment}: ${attachError.message}`);
+          stats.errors = (stats.errors || 0) + 1;
+          return null;
         }
-
-        // Save PDF to output directory with timestamp to avoid conflicts
-        const outputPath = path.join(pdfsDir, `${Date.now()}-${attachment}`);
-        const saveResult = await savePdf({
-          pdfBuffer: attachmentResult.data,
-          outputPath,
-        });
-
-        if (!saveResult.success) {
-          throw new Error(saveResult.error || 'Failed to save PDF');
-        }
-
+      })()
+    );
+    const attachmentResults = await Promise.all(attachmentPromises);
+    attachmentResults.forEach((outputPath) => {
+      if (outputPath) {
         downloadedPdfs.push(outputPath);
         stats.downloadedPdfs = (stats.downloadedPdfs || 0) + 1;
-
-        logger.info(`Saved PDF: ${outputPath}`);
-      } catch (attachError) {
-        logger.error(`Error processing attachment ${attachment}: ${attachError.message}`);
-        stats.errors = (stats.errors || 0) + 1;
       }
-    }
+    });
 
     return { downloadedPdfs, emailProcessed: true };
   } catch (emailError) {
