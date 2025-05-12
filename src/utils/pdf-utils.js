@@ -48,8 +48,14 @@ const savePdf = async ({ pdfBuffer, outputPath }) => {
     }
 
     // Write the buffer to file
-    fs.writeFileSync(outputPath, pdfBuffer);
-    return {
+    // Resolve and validate outputPath is within the allowed directory
+    const safeOutputPath = path.resolve(outputPath);
+    const allowedDir = path.resolve(DEFAULT_OUTPUT_DIR);
+    if (!safeOutputPath.startsWith(allowedDir)) {
+      throw new Error('Output path is not within the allowed directory');
+    }
+    // Write the PDF buffer to file asynchronously
+    await fs.promises.writeFile(safeOutputPath, pdfBuffer);
       success: true,
       outputPath,
       message: `PDF successfully saved to ${outputPath}`,
