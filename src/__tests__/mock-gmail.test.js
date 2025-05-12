@@ -27,6 +27,12 @@ jest.mock('path', () => {
 });
 
 describe('Mock Gmail Service', () => {
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterAll(() => {
+    console.error.mockRestore();
+  });
   beforeEach(() => {
     jest.clearAllMocks();
   });

@@ -6,6 +6,14 @@
 const fs = require('fs');
 const { run } = require('../index');
 
+// Suppress console.error globally for this test file
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  console.error.mockRestore();
+});
+
 // Mock dependencies
 jest.mock('../utils/logger', () => ({
   logger: {

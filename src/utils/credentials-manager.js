@@ -1,6 +1,6 @@
 /**
  * Credentials Manager - Secure loading of Google API credentials from a JavaScript file
- * 
+ *
  * This approach is preferred over environment variables for security reasons:
  * - Credentials are stored in a single file which is gitignored
  * - Less risk of exposing secrets in environment or process lists
@@ -49,7 +49,7 @@ const validateCredentials = (credentials) => {
     logger.error('Invalid credentials format: missing required fields');
     return false;
   }
-  
+
   return true;
 };
 
@@ -62,13 +62,13 @@ const validateCredentials = (credentials) => {
  */
 /**
  * Loads credentials from the specified path.
- * 
+ *
  * @description
  * This function attempts to load OAuth2 client credentials from the specified path.
  * It validates the credentials to ensure they're not service account credentials (which
  * don't work with Gmail) and checks for required fields (client_id, client_secret, and
  * redirect_uris). In test/mock mode, it's acceptable for credentials to be missing.
- * 
+ *
  * @param {Object} options - Options object
  * @param {string} options.credentialsPath - Path to credentials file
  * @returns {Object|null} The loaded credentials or null on failure
@@ -78,16 +78,16 @@ const loadCredentials = async ({ credentialsPath }) => {
     // Check if credentials file exists
     if (credentialsPath && fs.existsSync(credentialsPath)) {
       const credentials = readCredentialsFile(credentialsPath);
-      
+
       if (!credentials) {
         return null;
       }
-      
+
       if (validateCredentials(credentials)) {
         logger.info('Credentials loaded successfully');
         return credentials;
       }
-      
+
       return null;
     }
 

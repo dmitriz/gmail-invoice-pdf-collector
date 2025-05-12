@@ -9,6 +9,13 @@ const {
   // INVOICE_KEYWORDS not used in tests
 } = require('../mocks/mock-llm');
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+  console.error.mockRestore();
+});
+
 describe('Mock LLM Functions', () => {
   it('findKeywords should find invoice keywords in text', () => {
     // Setup
