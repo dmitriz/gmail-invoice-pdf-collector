@@ -84,18 +84,6 @@ To maintain a clean, consistent development workflow, follow these steps at the 
    - If any tests fail:
      - Fix them before proceeding.
 
-3. **Commit and Clean Up**  
-   - Stage and commit all remaining changes:
-     ```bash
-     git add .
-     git commit -m "<meaningful task-related message>"
-     ```
-   - Ensure the working directory is clean:
-     ```bash
-     git status
-     ```
-     - Resolve any uncommitted or staged files if needed.
-
 ---
 
 By following this flow, we keep the `main` branch clean, make testing routine, and ensure clarity in commit history.
