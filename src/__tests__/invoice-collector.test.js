@@ -3,19 +3,15 @@
  */
 const path = require('path');
 const fs = require('fs');
-const { 
-  processInvoices, 
-  processEmail, 
-  initOutputDirs 
-} = require('../invoice-collector');
+const { processInvoices, processEmail, initOutputDirs } = require('../invoice-collector');
 
 // Mock dependencies
 jest.mock('../utils/logger', () => ({
   logger: {
     info: jest.fn(),
     error: jest.fn(),
-    warn: jest.fn()
-  }
+    warn: jest.fn(),
+  },
 }));
 
 // Mock file system operations
@@ -23,75 +19,75 @@ jest.mock('fs', () => ({
   existsSync: jest.fn(),
   mkdirSync: jest.fn(),
   writeFileSync: jest.fn(),
-  readFileSync: jest.fn()
+  readFileSync: jest.fn(),
 }));
 
 describe('Invoice Collector', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Default behavior for fs.existsSync
     fs.existsSync.mockReturnValue(true);
-    
+
     // Default behavior for fs.readFileSync (mock PDF data)
     fs.readFileSync.mockReturnValue(Buffer.from('mock pdf content'));
   });
-  
+
   describe('initOutputDirs', () => {
     it('should create output directories if they do not exist', () => {
       // Setup
       fs.existsSync.mockReturnValueOnce(false).mockReturnValueOnce(false);
-      
+
       // Execute
       const result = initOutputDirs({ outputDir: '/test/output' });
-      
+
       // Verify
       expect(result.success).toBe(true);
       expect(fs.mkdirSync).toHaveBeenCalledTimes(2);
       expect(result.outputDir).toBe('/test/output');
       expect(result.pdfsDir).toBe(path.join('/test/output', 'pdfs'));
     });
-    
+
     it('should return success if directories already exist', () => {
       // Setup
       fs.existsSync.mockReturnValue(true);
-      
+
       // Execute
       const result = initOutputDirs({ outputDir: '/test/output' });
-      
+
       // Verify
       expect(result.success).toBe(true);
       expect(fs.mkdirSync).not.toHaveBeenCalled();
     });
   });
-  
+
   describe('processEmail', () => {
     it('should process invoice email with PDF attachments', async () => {
       // Setup
       const mockEmail = {
         subject: 'Your Invoice',
         body: 'Please find attached invoice',
-        attachments: ['invoice.pdf', 'receipt.pdf']
+        attachments: ['invoice.pdf', 'receipt.pdf'],
       };
-      
+
       const mockLlmService = {
         classifyEmail: jest.fn().mockResolvedValue({
           is_invoice: true,
           confidence: 0.9,
-          reason: 'Contains invoice keywords'
-        })
+          reason: 'Contains invoice keywords',
+        }),
       };
-      
+
       const mockGmailService = {
         getAttachment: jest.fn().mockResolvedValue({
           success: true,
-          data: Buffer.from('mock pdf content')
-        })
+          data: Buffer.from('mock pdf content'),
+        }),
       };
-      
+
       const stats = {};
-      
+
       // Execute
       const result = await processEmail({
         email: mockEmail,
@@ -100,9 +96,9 @@ describe('Invoice Collector', () => {
         gmailService: mockGmailService,
         pdfsDir: '/test/output/pdfs',
         confidenceThreshold: 0.7,
-        stats
+        stats,
       });
-      
+
       // Verify
       expect(result.emailProcessed).toBe(true);
       expect(result.downloadedPdfs.length).toBe(2);
@@ -112,36 +108,36 @@ describe('Invoice Collector', () => {
       expect(stats.pdfAttachments).toBe(2);
       expect(stats.downloadedPdfs).toBe(2);
     });
-    
+
     it('should skip non-invoice emails', async () => {
       // Setup
       const mockEmail = {
         subject: 'Hello',
         body: 'Just saying hi',
-        attachments: ['document.pdf']
+        attachments: ['document.pdf'],
       };
-      
+
       const mockLlmService = {
         classifyEmail: jest.fn().mockResolvedValue({
           is_invoice: false,
           confidence: 0.2,
-          reason: 'No invoice keywords'
-        })
+          reason: 'No invoice keywords',
+        }),
       };
-      
+
       const mockGmailService = {
-        getAttachment: jest.fn()
+        getAttachment: jest.fn(),
       };
-      
+
       // Execute
       const result = await processEmail({
         email: mockEmail,
         index: 0,
         llmService: mockLlmService,
         gmailService: mockGmailService,
-        pdfsDir: '/test/output/pdfs'
+        pdfsDir: '/test/output/pdfs',
       });
-      
+
       // Verify
       expect(result.emailProcessed).toBe(true);
       expect(result.downloadedPdfs.length).toBe(0);
@@ -149,7 +145,7 @@ describe('Invoice Collector', () => {
       expect(mockGmailService.getAttachment).not.toHaveBeenCalled();
     });
   });
-  
+
   describe('processInvoices', () => {
     it('should process all emails and merge PDFs', async () => {
       // Setup
@@ -157,57 +153,58 @@ describe('Invoice Collector', () => {
         {
           subject: 'Invoice #123',
           body: 'Please find invoice attached',
-          attachments: ['invoice123.pdf']
+          attachments: ['invoice123.pdf'],
         },
         {
           subject: 'Receipt',
           body: 'Your receipt',
-          attachments: ['receipt.pdf']
+          attachments: ['receipt.pdf'],
         },
         {
           subject: 'Hello',
           body: 'Just saying hi',
-          attachments: []
-        }
+          attachments: [],
+        },
       ];
-      
+
       const mockGmailService = {
         listEmails: jest.fn().mockResolvedValue({
           success: true,
-          emails: mockEmails
+          emails: mockEmails,
         }),
         getAttachment: jest.fn().mockResolvedValue({
           success: true,
-          data: Buffer.from('mock pdf content')
-        })
+          data: Buffer.from('mock pdf content'),
+        }),
       };
-      
+
       const mockLlmService = {
-        classifyEmail: jest.fn()
+        classifyEmail: jest
+          .fn()
           .mockResolvedValueOnce({
             is_invoice: true,
             confidence: 0.9,
-            reason: 'Invoice keywords'
+            reason: 'Invoice keywords',
           })
           .mockResolvedValueOnce({
             is_invoice: true,
             confidence: 0.8,
-            reason: 'Receipt keywords'
+            reason: 'Receipt keywords',
           })
           .mockResolvedValueOnce({
             is_invoice: false,
             confidence: 0.1,
-            reason: 'No keywords'
-          })
+            reason: 'No keywords',
+          }),
       };
-      
+
       // Execute
       const stats = await processInvoices({
         gmailService: mockGmailService,
         llmService: mockLlmService,
-        outputDir: '/test/output'
+        outputDir: '/test/output',
       });
-      
+
       // Verify
       expect(stats.totalEmails).toBe(3);
       expect(stats.invoiceEmails).toBe(2);

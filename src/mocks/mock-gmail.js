@@ -23,13 +23,13 @@ const readJsonFile = ({ filePath }) => {
     const data = fs.readFileSync(filePath, 'utf8');
     return {
       success: true,
-      data: JSON.parse(data)
+      data: JSON.parse(data),
     };
   } catch (error) {
     return {
       success: false,
       error: new Error(`Error reading JSON file ${filePath}: ${error.message}`),
-      data: []
+      data: [],
     };
   }
 };
@@ -42,15 +42,15 @@ const readJsonFile = ({ filePath }) => {
  */
 const loadMockEmails = ({ emailsPath = EMAILS_PATH } = {}) => {
   const result = readJsonFile({ filePath: emailsPath });
-  
+
   if (!result.success) {
     console.error(result.error.message);
   }
-  
+
   return {
     success: result.success,
     emails: result.data || [],
-    error: result.error
+    error: result.error,
   };
 };
 
@@ -59,14 +59,14 @@ const loadMockEmails = ({ emailsPath = EMAILS_PATH } = {}) => {
  * @param {Object} [params={}] - Parameters (empty object for future extensions)
  * @returns {Promise<Object>} Result with list of email objects
  */
-const listEmails = (params = {}) => {
+const listEmails = (_params = {}) => {
   return new Promise((resolve) => {
     const result = loadMockEmails({});
-    
+
     resolve({
       success: result.success,
       emails: result.emails,
-      error: result.error
+      error: result.error,
     });
   });
 };
@@ -78,17 +78,14 @@ const listEmails = (params = {}) => {
  * @param {string[]} [params.allowedExtensions] - List of allowed extensions
  * @returns {Object} Result of the check
  */
-const hasAllowedExtension = ({ 
-  filename, 
-  allowedExtensions = ALLOWED_EXTENSIONS 
-}) => {
+const hasAllowedExtension = ({ filename, allowedExtensions = ALLOWED_EXTENSIONS }) => {
   const extension = path.extname(filename).toLowerCase();
   const isAllowed = allowedExtensions.includes(extension);
-  
+
   return {
     isAllowed,
     extension,
-    error: isAllowed ? null : new Error(`File type ${extension} not allowed`)
+    error: isAllowed ? null : new Error(`File type ${extension} not allowed`),
   };
 };
 
@@ -100,27 +97,23 @@ const hasAllowedExtension = ({
  * @param {string} [params.samplePdfsDir] - Custom path to sample PDFs
  * @returns {Promise<Object>} Result with attachment data
  */
-const getAttachment = ({ 
-  emailId, 
-  attachmentName,
-  samplePdfsDir = SAMPLE_PDFS_DIR 
-}) => {
+const getAttachment = ({ /* emailId, */ attachmentName, samplePdfsDir = SAMPLE_PDFS_DIR }) => {
   return new Promise((resolve, reject) => {
     // Check if attachment has allowed extension
     const extensionCheck = hasAllowedExtension({ filename: attachmentName });
-    
+
     if (!extensionCheck.isAllowed) {
       return reject(extensionCheck.error);
     }
 
     // Construct path to sample PDF
     const pdfPath = path.join(samplePdfsDir, attachmentName);
-    
+
     // Check if file exists
     if (!fs.existsSync(pdfPath)) {
       return reject(new Error(`Attachment ${attachmentName} not found`));
     }
-    
+
     // Return the file as buffer
     try {
       const fileBuffer = fs.readFileSync(pdfPath);
@@ -128,16 +121,16 @@ const getAttachment = ({
         success: true,
         attachmentName,
         data: fileBuffer,
-        contentType: 'application/pdf'
+        contentType: 'application/pdf',
       });
     } catch (error) {
       reject({
         success: false,
-        error: new Error(`Error reading attachment: ${error.message}`)
+        error: new Error(`Error reading attachment: ${error.message}`),
       });
     }
   });
-}
+};
 
 module.exports = {
   listEmails,
@@ -149,5 +142,5 @@ module.exports = {
   MOCK_DATA_DIR,
   EMAILS_PATH,
   SAMPLE_PDFS_DIR,
-  ALLOWED_EXTENSIONS
+  ALLOWED_EXTENSIONS,
 };

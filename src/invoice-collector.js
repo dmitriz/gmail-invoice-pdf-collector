@@ -3,7 +3,8 @@
  * Using functional programming paradigm with single object arguments
  */
 const path = require('path');
-const fs = require('fs');
+// fs is used through other utilities
+const _fs = require('fs');
 const { logger } = require('./utils/logger');
 const { savePdf, mergePdfs, ensureDirectoryExists } = require('./utils/pdf-utils');
 
@@ -24,24 +25,24 @@ const initOutputDirs = ({ outputDir = DEFAULT_OUTPUT_DIR }) => {
   if (!mainDirResult.success) {
     return {
       success: false,
-      error: mainDirResult.error
+      error: mainDirResult.error,
     };
   }
-  
+
   // Ensure PDFs subdirectory exists
   const pdfsDir = path.join(outputDir, 'pdfs');
   const pdfsDirResult = ensureDirectoryExists({ dirPath: pdfsDir });
   if (!pdfsDirResult.success) {
     return {
       success: false,
-      error: pdfsDirResult.error
+      error: pdfsDirResult.error,
     };
   }
-  
+
   return {
     success: true,
     outputDir,
-    pdfsDir
+    pdfsDir,
   };
 };
 
@@ -64,78 +65,82 @@ const processEmail = async ({
   gmailService,
   pdfsDir,
   confidenceThreshold = DEFAULT_CONFIDENCE_THRESHOLD,
-  stats = {}
+  stats = {},
 }) => {
   const downloadedPdfs = [];
-  
+
   try {
     logger.info(`Processing email ${index + 1}: "${email.subject}"`);
-    
+
     // Check if email contains an invoice using LLM
     const classification = await llmService.classifyEmail({
       subject: email.subject,
-      body: email.body
+      body: email.body,
     });
-    
+
     // Skip if not an invoice or confidence is too low
     if (!classification.is_invoice || classification.confidence < confidenceThreshold) {
-      logger.info(`Skipping email - not identified as invoice (confidence: ${classification.confidence})`);
+      logger.info(
+        `Skipping email - not identified as invoice (confidence: ${classification.confidence})`
+      );
       return { downloadedPdfs, emailProcessed: true };
     }
-    
+
     // Count as invoice email
     stats.invoiceEmails = (stats.invoiceEmails || 0) + 1;
-    logger.info(`Invoice detected (confidence: ${classification.confidence}): ${classification.reason}`);
-    
+    logger.info(
+      `Invoice detected (confidence: ${classification.confidence}): ${classification.reason}`
+    );
+
     // Skip if no attachments
     if (!email.attachments || email.attachments.length === 0) {
       logger.info('No attachments found in this email');
       return { downloadedPdfs, emailProcessed: true };
     }
-    
+
     // Filter for PDF attachments
-    const pdfAttachments = email.attachments.filter(att => 
+    const pdfAttachments = email.attachments.filter((att) =>
       att.toLowerCase().endsWith(PDF_EXTENSION)
     );
-    
+
     stats.pdfAttachments = (stats.pdfAttachments || 0) + pdfAttachments.length;
-    
+
     // Download each PDF attachment
     for (const attachment of pdfAttachments) {
       try {
         logger.info(`Downloading attachment: ${attachment}`);
-        
+
         // Get attachment data
         const attachmentResult = await gmailService.getAttachment({
           emailId: index,
-          attachmentName: attachment
+          attachmentName: attachment,
         });
-        
+
         if (!attachmentResult.success) {
           throw new Error(attachmentResult.error || 'Failed to download attachment');
         }
-        
+
         // Save PDF to output directory with timestamp to avoid conflicts
         const outputPath = path.join(pdfsDir, `${Date.now()}-${attachment}`);
         const saveResult = await savePdf({
           pdfBuffer: attachmentResult.data,
-          outputPath
+          outputPath,
         });
-        
+
         if (!saveResult.success) {
           throw new Error(saveResult.error || 'Failed to save PDF');
         }
-        
+
         downloadedPdfs.push(outputPath);
         stats.downloadedPdfs = (stats.downloadedPdfs || 0) + 1;
-        
+
         logger.info(`Saved PDF: ${outputPath}`);
       } catch (attachError) {
         logger.error(`Error processing attachment ${attachment}: ${attachError.message}`);
         stats.errors = (stats.errors || 0) + 1;
       }
     }
-    
+
     return { downloadedPdfs, emailProcessed: true };
   } catch (emailError) {
     logger.error(`Error processing email: ${emailError.message}`);
@@ -157,40 +162,40 @@ const processInvoices = async ({
   gmailService,
   llmService,
   outputDir = DEFAULT_OUTPUT_DIR,
-  confidenceThreshold = DEFAULT_CONFIDENCE_THRESHOLD
+  confidenceThreshold = DEFAULT_CONFIDENCE_THRESHOLD,
 }) => {
   logger.info('Starting invoice collection process');
-  
+
   // Initialize statistics
   const stats = {
     totalEmails: 0,
     invoiceEmails: 0,
     pdfAttachments: 0,
     downloadedPdfs: 0,
-    errors: 0
+    errors: 0,
   };
-  
+
   try {
     // Initialize output directories
     const dirsResult = initOutputDirs({ outputDir });
     if (!dirsResult.success) {
       throw new Error(`Failed to create output directories: ${dirsResult.error}`);
     }
-    
+
     // Get all emails
     const emailsResult = await gmailService.listEmails({});
-    
+
     if (!emailsResult.success) {
       throw new Error('Failed to fetch emails');
     }
-    
+
     const emails = emailsResult.emails || [];
     stats.totalEmails = emails.length;
     logger.info(`Found ${emails.length} emails to process`);
-    
+
     // Process each email
     const allDownloadedPdfs = [];
-    
+
     for (let i = 0; i < emails.length; i++) {
       const { downloadedPdfs } = await processEmail({
         email: emails[i],
@@ -199,22 +204,22 @@ const processInvoices = async ({
         gmailService,
         pdfsDir: dirsResult.pdfsDir,
         confidenceThreshold,
-        stats
+        stats,
       });
-      
+
       allDownloadedPdfs.push(...downloadedPdfs);
     }
-    
+
     // Merge all PDFs into one file if we have any
     if (allDownloadedPdfs.length > 0) {
       logger.info(`Merging ${allDownloadedPdfs.length} PDFs into single file`);
       const mergedPath = path.join(outputDir, 'merged.pdf');
-      
+
       const mergeResult = await mergePdfs({
         pdfPaths: allDownloadedPdfs,
-        outputPath: mergedPath
+        outputPath: mergedPath,
       });
-      
+
       if (mergeResult.success) {
         logger.info(`Successfully created merged PDF: ${mergedPath}`);
       } else {
@@ -224,15 +229,14 @@ const processInvoices = async ({
     } else {
       logger.info('No PDFs to merge');
     }
-    
   } catch (error) {
     logger.error(`Collection process failed: ${error.message}`);
     stats.errors++;
   }
-  
+
   logger.info('Invoice collection process completed');
   logger.info(`Stats: ${JSON.stringify(stats)}`);
-  
+
   return stats;
 };
 
@@ -243,5 +247,5 @@ module.exports = {
   // Constants exported for testing
   DEFAULT_OUTPUT_DIR,
   DEFAULT_CONFIDENCE_THRESHOLD,
-  PDF_EXTENSION
+  PDF_EXTENSION,
 };

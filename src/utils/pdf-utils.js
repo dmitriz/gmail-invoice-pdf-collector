@@ -23,9 +23,9 @@ const ensureDirectoryExists = ({ dirPath }) => {
     }
     return { success: true, dirPath };
   } catch (error) {
-    return { 
-      success: false, 
-      error: new Error(`Failed to create directory ${dirPath}: ${error.message}`) 
+    return {
+      success: false,
+      error: new Error(`Failed to create directory ${dirPath}: ${error.message}`),
     };
   }
 };
@@ -42,22 +42,22 @@ const savePdf = async ({ pdfBuffer, outputPath }) => {
     // Ensure the directory exists
     const dir = path.dirname(outputPath);
     const dirResult = ensureDirectoryExists({ dirPath: dir });
-    
+
     if (!dirResult.success) {
       return { success: false, error: dirResult.error };
     }
-    
+
     // Write the buffer to file
     fs.writeFileSync(outputPath, pdfBuffer);
-    return { 
-      success: true, 
+    return {
+      success: true,
       outputPath,
-      message: `PDF successfully saved to ${outputPath}`
+      message: `PDF successfully saved to ${outputPath}`,
     };
   } catch (error) {
-    return { 
-      success: false, 
-      error: new Error(`Failed to save PDF: ${error.message}`) 
+    return {
+      success: false,
+      error: new Error(`Failed to save PDF: ${error.message}`),
     };
   }
 };
@@ -73,24 +73,24 @@ const processSinglePdf = async ({ pdfPath, targetDoc }) => {
   try {
     // Read the PDF file
     const pdfBytes = fs.readFileSync(pdfPath);
-    
+
     // Load the PDF document
     const pdfDoc = await PDFDocument.load(pdfBytes);
-    
+
     // Copy pages from the source PDF to the target PDF
     const copiedPages = await targetDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
     copiedPages.forEach((page) => {
       targetDoc.addPage(page);
     });
-    
-    return { 
-      success: true, 
-      pagesAdded: copiedPages.length 
+
+    return {
+      success: true,
+      pagesAdded: copiedPages.length,
     };
   } catch (error) {
-    return { 
-      success: false, 
-      error: new Error(`Error processing PDF ${pdfPath}: ${error.message}`) 
+    return {
+      success: false,
+      error: new Error(`Error processing PDF ${pdfPath}: ${error.message}`),
     };
   }
 };
@@ -106,22 +106,22 @@ const mergePdfs = async ({ pdfPaths, outputPath }) => {
   try {
     // Create a new PDF document
     const mergedPdf = await PDFDocument.create();
-    
+
     // Track processing results
     const results = {
       totalFiles: pdfPaths.length,
       successfulMerges: 0,
       failedMerges: 0,
-      errors: []
+      errors: [],
     };
-    
+
     // Process each PDF
     for (const pdfPath of pdfPaths) {
-      const processResult = await processSinglePdf({ 
-        pdfPath, 
-        targetDoc: mergedPdf 
+      const processResult = await processSinglePdf({
+        pdfPath,
+        targetDoc: mergedPdf,
       });
-      
+
       if (processResult.success) {
         results.successfulMerges++;
       } else {
@@ -129,47 +129,47 @@ const mergePdfs = async ({ pdfPaths, outputPath }) => {
         results.errors.push(processResult.error.message);
       }
     }
-    
+
     // Skip further processing if no PDFs were successfully merged
     if (results.successfulMerges === 0) {
       return {
         success: false,
         error: new Error('No PDFs were successfully processed for merging'),
-        results
+        results,
       };
     }
-    
+
     // Serialize the merged PDF to bytes
     const mergedPdfBytes = await mergedPdf.save();
-    
+
     // Ensure output directory exists
     const dir = path.dirname(outputPath);
     const dirResult = ensureDirectoryExists({ dirPath: dir });
-    
+
     if (!dirResult.success) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: dirResult.error,
-        results 
+        results,
       };
     }
-    
+
     // Write the merged PDF to file
     fs.writeFileSync(outputPath, mergedPdfBytes);
-    
+
     return {
       success: true,
       outputPath,
       message: `Successfully merged ${results.successfulMerges} PDFs into ${outputPath}`,
-      results
+      results,
     };
   } catch (error) {
-    return { 
-      success: false, 
-      error: new Error(`Failed to merge PDFs: ${error.message}`) 
+    return {
+      success: false,
+      error: new Error(`Failed to merge PDFs: ${error.message}`),
     };
   }
-}
+};
 
 module.exports = {
   savePdf,
@@ -177,5 +177,5 @@ module.exports = {
   ensureDirectoryExists,
   processSinglePdf,
   DEFAULT_OUTPUT_DIR,
-  PDF_DIR
+  PDF_DIR,
 };

@@ -6,15 +6,23 @@
 
 // Constants
 const INVOICE_KEYWORDS = [
-  'invoice', 'receipt', 'payment', 'bill', 'transaction',
-  'purchase', 'order', 'confirmation', 'paid', 'amount'
+  'invoice',
+  'receipt',
+  'payment',
+  'bill',
+  'transaction',
+  'purchase',
+  'order',
+  'confirmation',
+  'paid',
+  'amount',
 ];
 
 const CONFIDENCE_THRESHOLDS = {
   HIGH_MIN: 0.8,
   HIGH_MAX: 1.0,
   LOW_MIN: 0.1,
-  LOW_MAX: 0.4
+  LOW_MAX: 0.4,
 };
 
 /**
@@ -26,10 +34,10 @@ const CONFIDENCE_THRESHOLDS = {
  */
 const findKeywords = ({ text, keywords = INVOICE_KEYWORDS }) => {
   const lowercaseText = text.toLowerCase();
-  const matches = keywords.filter(keyword => lowercaseText.includes(keyword));
+  const matches = keywords.filter((keyword) => lowercaseText.includes(keyword));
   return {
     matches,
-    hasMatches: matches.length > 0
+    hasMatches: matches.length > 0,
   };
 };
 
@@ -41,11 +49,15 @@ const findKeywords = ({ text, keywords = INVOICE_KEYWORDS }) => {
  */
 const generateConfidence = ({ isInvoice }) => {
   if (isInvoice) {
-    return CONFIDENCE_THRESHOLDS.HIGH_MIN + 
-      (Math.random() * (CONFIDENCE_THRESHOLDS.HIGH_MAX - CONFIDENCE_THRESHOLDS.HIGH_MIN));
+    return (
+      CONFIDENCE_THRESHOLDS.HIGH_MIN +
+      Math.random() * (CONFIDENCE_THRESHOLDS.HIGH_MAX - CONFIDENCE_THRESHOLDS.HIGH_MIN)
+    );
   } else {
-    return CONFIDENCE_THRESHOLDS.LOW_MIN + 
-      (Math.random() * (CONFIDENCE_THRESHOLDS.LOW_MAX - CONFIDENCE_THRESHOLDS.LOW_MIN));
+    return (
+      CONFIDENCE_THRESHOLDS.LOW_MIN +
+      Math.random() * (CONFIDENCE_THRESHOLDS.LOW_MAX - CONFIDENCE_THRESHOLDS.LOW_MIN)
+    );
   }
 };
 
@@ -60,31 +72,31 @@ const classifyEmail = ({ subject, body }) => {
   return new Promise((resolve) => {
     // Combine subject and body for analysis
     const combinedText = `${subject} ${body}`;
-    
+
     // Find relevant keywords
     const keywordResult = findKeywords({ text: combinedText });
     const isInvoice = keywordResult.hasMatches;
-    
+
     // Generate confidence score
     const confidence = generateConfidence({ isInvoice });
-    
+
     // Build response
     const result = {
       is_invoice: isInvoice,
       confidence,
-      reason: isInvoice 
-        ? `Identified keywords: ${keywordResult.matches.join(', ')}` 
-        : 'No invoice-related keywords found'
+      reason: isInvoice
+        ? `Identified keywords: ${keywordResult.matches.join(', ')}`
+        : 'No invoice-related keywords found',
     };
-    
+
     resolve(result);
   });
-}
+};
 
 module.exports = {
   classifyEmail,
   findKeywords,
   generateConfidence,
   INVOICE_KEYWORDS,
-  CONFIDENCE_THRESHOLDS
+  CONFIDENCE_THRESHOLDS,
 };

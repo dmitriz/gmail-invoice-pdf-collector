@@ -59,7 +59,7 @@ const createLogger = ({
   level = DEFAULT_LOG_LEVEL,
   logsDir = LOGS_DIR,
   maxFileSize = DEFAULT_MAX_FILE_SIZE,
-  maxFiles = DEFAULT_MAX_FILES
+  maxFiles = DEFAULT_MAX_FILES,
 } = {}) => {
   // Ensure logs directory exists
   ensureDirectoryExists({ dirPath: logsDir });
@@ -71,22 +71,22 @@ const createLogger = ({
     transports: [
       // Console output
       new winston.transports.Console(),
-      
+
       // File output - general logs
-      new winston.transports.File({ 
+      new winston.transports.File({
         filename: path.join(logsDir, 'app.log'),
         maxsize: maxFileSize,
-        maxFiles
+        maxFiles,
       }),
-      
+
       // File output - error logs only
-      new winston.transports.File({ 
+      new winston.transports.File({
         filename: path.join(logsDir, 'error.log'),
         level: 'error',
         maxsize: maxFileSize,
-        maxFiles
-      })
-    ]
+        maxFiles,
+      }),
+    ],
   });
 };
 
@@ -104,5 +104,5 @@ module.exports = {
   DEFAULT_LOG_LEVEL,
   DEFAULT_MAX_FILE_SIZE,
   DEFAULT_MAX_FILES,
-  TIMESTAMP_FORMAT
+  TIMESTAMP_FORMAT,
 };
