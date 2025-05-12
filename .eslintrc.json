@@ -1,0 +1,1 @@
+{"env":{"node":true,"jest":true},"extends":["eslint:recommended","plugin:jest/recommended","prettier"],"parserOptions":{"ecmaVersion":2020},"rules":{"no-console":"off"}}
