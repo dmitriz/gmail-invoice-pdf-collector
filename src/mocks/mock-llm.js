@@ -32,7 +32,7 @@ const CONFIDENCE_THRESHOLDS = {
  * @param {string[]} params.keywords - Keywords to look for
  * @returns {Object} Result with matches
  */
-const findKeywords = ({ text, keywords = INVOICE_KEYWORDS }) => {
+const findKeywords = ({ text = '', keywords = INVOICE_KEYWORDS }) => {
   const lowercaseText = text.toLowerCase();
   const matches = keywords.filter((keyword) => lowercaseText.includes(keyword));
   return {
