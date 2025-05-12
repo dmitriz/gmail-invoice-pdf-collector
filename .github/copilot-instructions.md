@@ -51,3 +51,52 @@ If these guidelines are not followed:
 
 Terminal commands must ALWAYS be combined into a single
 comprehensive script. No exceptions.
+
+# 🧠 GitHub Copilot Task Workflow Guide
+
+To maintain a clean, consistent development workflow, follow these steps at the beginning and end of **every task**.
+
+---
+
+## ✅ Beginning of Task
+
+1. **Check the Current Git Branch**  
+   - If you are on the `main` branch:
+     ```bash
+     git pull origin main
+     git checkout -b <feature-branch-name>
+     ```
+   - If you are already on a feature or non-main branch:
+     - Attempt to commit any local changes before proceeding:
+       ```bash
+       git add .
+       git commit -m "WIP: Saving progress before starting new task" || echo "No changes to commit"
+       ```
+
+---
+
+## 🧪 End of Task
+
+2. **Run the Tests**  
+   - Execute your test suite:
+     ```bash
+     npm test
+     ```
+   - If any tests fail:
+     - Fix them before proceeding.
+
+3. **Commit and Clean Up**  
+   - Stage and commit all remaining changes:
+     ```bash
+     git add .
+     git commit -m "<meaningful task-related message>"
+     ```
+   - Ensure the working directory is clean:
+     ```bash
+     git status
+     ```
+     - Resolve any uncommitted or staged files if needed.
+
+---
+
+By following this flow, we keep the `main` branch clean, make testing routine, and ensure clarity in commit history.
