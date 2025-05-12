@@ -69,7 +69,7 @@ const processEmail = async ({
   const downloadedPdfs = [];
 
   try {
-    logger.info(`Processing email ${index + 1}: "${email.subject}"`);
+    logger.info(`Processing email ${index + 1}: "${email.subject.replace(/[\r\n]+/g, ' ')}"`);
 
     // Check if email contains an invoice using LLM
     const classification = await llmService.classifyEmail({
