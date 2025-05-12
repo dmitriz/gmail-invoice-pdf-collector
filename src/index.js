@@ -90,12 +90,9 @@ if (require.main === module) {
   // Build options for execution
   const options = { realMode: !isTestMode };
 
-  // Execute main function with options
-  run(options);
   logger.info(`Running in ${isTestMode ? 'TEST' : 'PRODUCTION'} mode`);
-
-  // Execute main function
-  run(config)
+  // Execute main function with options
+  run(options)
     .then((result) => {
       if (!result.success) {
         logger.error(`Application failed: ${result.error}`);
