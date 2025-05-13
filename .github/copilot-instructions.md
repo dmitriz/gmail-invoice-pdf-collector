@@ -68,6 +68,19 @@ comprehensive script. No exceptions.
 - Default to existing patterns rather than introducing new ones
 - Consider whether functionality can be simplified before implementing complex solutions
 
+## Focus and Precision Requirements [CRITICAL]
+
+- ONLY make changes that have been explicitly requested
+- DO NOT remove or modify existing functionality without specific direction
+- DO NOT modify files or code that aren't part of the current task
+- KEEP all essential components even when simplifying:
+  - Essential components include: GitHub workflow files, .gitignore with complete entries, license files
+- When simplifying, explain what you're removing and why BEFORE making changes
+- ALWAYS get confirmation before removing anything that might be useful
+- FOCUS exclusively on the task at hand without introducing tangential changes
+- Maintain consistency with existing code patterns unless explicitly asked to change them
+- DO NOT silently remove entries or configurations - get explicit approval first
+
 # 🧠 GitHub Copilot Task Workflow Guide
 
 To maintain a clean, consistent development workflow, follow these steps at the beginning and end of **every task**.
