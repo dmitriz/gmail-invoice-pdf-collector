@@ -122,7 +122,7 @@ Based on the PDF utilities code, we'll need to identify and transfer these depen
 
 ## New Package Structure
 
-The new repository will have the following structure:
+The new repository at https://github.com/dmitriz/pdf-utils will have the following structure:
 
 ```plaintext
 pdf-utils/

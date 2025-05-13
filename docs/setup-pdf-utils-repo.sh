@@ -1,9 +1,8 @@
 #!/bin/bash
 # Script to set up the new pdf-utils repository
-# Replace YOUR_GITHUB_USERNAME with your actual GitHub username
 
 # Clone the newly created repository
-git clone https://github.com/YOUR_USERNAME/pdf-utils.git
+git clone https://github.com/dmitriz/pdf-utils.git
 cd pdf-utils
 
 # Create the basic directory structure
@@ -52,10 +51,14 @@ jobs:
     - run: npm test
 ' > .github/workflows/test.yml
 
-# Initialize the repository
+# Initialize the repository and install dependencies
 npm init -y
 npm install --save pdf-lib
 npm install --save-dev jest
+
+# Update the package.json with repository details
+sed -i 's/"repository": {/"repository": {"type": "git", "url": "https:\/\/github.com\/dmitriz\/pdf-utils.git"/g' package.json
+sed -i 's/"name": "pdf-utils",/"name": "pdf-utils", "homepage": "https:\/\/github.com\/dmitriz\/pdf-utils",/g' package.json
 
 # Add files to git
 git add .

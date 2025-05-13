@@ -2,7 +2,7 @@
  * PDF Utilities Migration Steps
  * 
  * This file details the specific changes needed to migrate from the embedded PDF utilities
- * to the new extracted npm package.
+ * to the new extracted npm package from https://github.com/dmitriz/pdf-utils
  */
 
 // STEP 1: Install the new package

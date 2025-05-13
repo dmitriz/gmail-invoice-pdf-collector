@@ -2,7 +2,7 @@
 
 ## Repository Setup
 
-- [x] Create new GitHub repository named `pdf-utils` at https://github.com/dmitriz/pdf-utils
+- [x] Create new GitHub repository named [`pdf-utils`](https://github.com/dmitriz/pdf-utils)
 - [ ] Initialize with README, LICENSE (MIT), and .gitignore
 - [ ] Clone repository locally
 
