@@ -49,7 +49,7 @@ Based on the PDF utilities code, we'll need to identify and transfer these depen
 
 ### Phase 2: Code Extraction and Package Creation
 
-3. **Extract PDF utilities code**
+1. **Extract PDF utilities code**
    - Copy `pdf-utils.js` to the new repository's `src/` directory
    - Create a new `src/index.js` file to export the API
    - Create a `src/constants.js` file for configuration constants
@@ -57,14 +57,14 @@ Based on the PDF utilities code, we'll need to identify and transfer these depen
    - Refactor the security check in `savePdf` to be more flexible
    - Make the API more configurable with options
 
-4. **Extract and adapt tests**
+2. **Extract and adapt tests**
    - Copy `pdf-utils.test.js` to the new repository's `tests/` directory
    - Update mocks to work independently of the original codebase
    - Fix the path resolution issues that cause test failures in CI
    - Implement more comprehensive test cases for edge conditions
    - Ensure tests are deterministic and reliable
 
-5. **Package configuration**
+3. **Package configuration**
    - Create a proper `index.js` that exports a clean, well-documented API
    - Set up semantic versioning starting at 1.0.0
    - Configure `package.json` with appropriate metadata, dependencies, and scripts
@@ -73,19 +73,19 @@ Based on the PDF utilities code, we'll need to identify and transfer these depen
 
 ### Phase 3: Integration and Deployment
 
-6. **Publish the package**
+1. **Publish the package**
    - Create a GitHub repository and configure GitHub Packages
    - Set up the initial npm package release process
    - Create CI/CD workflows for automated testing and publishing
    - Publish version 1.0.0 to npm or GitHub Packages
 
-7. **Update the main project**
+2. **Update the main project**
    - Add the new package as a dependency in `package.json`
    - Update import statements to use the new package
    - Replace all `require('./utils/pdf-utils')` references with the new package
    - Handle any path-related configuration differences
 
-8. **Testing and verification**
+3. **Testing and verification**
    - Create integration tests specifically for the new package
    - Run all existing tests to verify functionality is preserved
    - Verify that the PDF merging functionality works as expected
@@ -93,13 +93,13 @@ Based on the PDF utilities code, we'll need to identify and transfer these depen
 
 ### Phase 4: Cleanup and Documentation
 
-9. **Clean up the main project**
+1. **Clean up the main project**
    - Remove the `/src/utils/pdf-utils.js` file from the main project
    - Remove the `/src/__tests__/pdf-utils.test.js` file from the main project
    - Update the main project's documentation to reflect the new architecture
    - Update CI/CD workflows to remove any redundant tests for PDF utilities
 
-10. **Final documentation**
+2. **Final documentation**
     - Create comprehensive API documentation in the new repository
     - Document common usage patterns and examples
     - Create a migration guide for other projects that might use the package

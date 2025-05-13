@@ -1,7 +1,3 @@
-/*
- * Initial package.json for the extracted pdf-utils package
- * This file serves as a template for the new repository
- */
 {
   "name": "pdf-utils",
   "version": "1.0.0",

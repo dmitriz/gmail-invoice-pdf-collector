@@ -62,31 +62,37 @@ const result = await savePdf({
 Saves a PDF buffer to a file.
 
 **Parameters:**
+
 - `options.pdfBuffer` (Buffer): The PDF data as Buffer
 - `options.outputPath` (string): Where to save the PDF
 
 **Returns:**
-- Promise<Object>: Result object with success status and information
+
+- Promise resolving to an object: Result object with success status and information
 
 ### mergePdfs(options)
 
 Merges multiple PDF files into a single PDF.
 
 **Parameters:**
-- `options.pdfPaths` (Array<string>): Paths to the PDFs to merge
+
+- `options.pdfPaths` (Array of strings): Paths to the PDFs to merge
 - `options.outputPath` (string): Where to save the merged PDF
 
 **Returns:** 
-- Promise<Object>: Result object with success status and information
+
+- Promise resolving to an object: Result object with success status and information
 
 ### ensureDirectoryExists(options)
 
 Ensures a directory exists, creating it if necessary.
 
 **Parameters:**
+
 - `options.dirPath` (string): Directory path to check/create
 
 **Returns:**
+
 - Object: Result object with success status
 
 ### processSinglePdf(options)
@@ -94,11 +100,13 @@ Ensures a directory exists, creating it if necessary.
 Processes a single PDF for operations like merging.
 
 **Parameters:**
+
 - `options.pdfPath` (string): Path to the PDF file
 - `options.targetDoc` (PDFDocument): Target document to add pages to
 
 **Returns:**
-- Promise<Object>: Result object with success status
+
+- Promise resolving to an object: Result object with success status
 
 ## License
 
