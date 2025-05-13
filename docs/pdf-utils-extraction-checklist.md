@@ -1,45 +1,26 @@
-# PDF Utils Extraction Checklist
+# PDF Utilities Extraction Checklist
 
 ## Repository Setup
 
-- [x] Create new GitHub repository named `pdf-utils` at <https://github.com/dmitriz/pdf-utils>
 - [ ] Initialize with README and .gitignore
-- [ ] Clone repository locally
-
-## Initial Package Setup
-
-- [ ] Copy template package.json from `docs/pdf-utils-package.json`
-- [ ] Copy README template from `docs/pdf-utils-readme.md`
-- [ ] Set up Jest configuration
-- [ ] Set up ESLint configuration
+- [ ] Set up GitHub Actions workflow for CI
+- [ ] Create directory structure (src, tests)
 
 ## Code Migration
 
-- [ ] Create basic directory structure (src, tests)
-- [ ] Extract and refactor code from `src/utils/pdf-utils.js`
-- [ ] Create new index.js with configurable API
-- [ ] Extract and adapt tests from `src/__tests__/pdf-utils.test.js`
-- [ ] Fix path handling issues causing test failures 
+- [ ] Copy PDF utilities source code
+- [ ] Copy PDF utilities tests
+- [ ] Create package.json with dependencies
+- [ ] Update import paths in tests
+
+## Verification
+
+- [ ] Install dependencies
 - [ ] Run tests to verify functionality
+- [ ] Commit changes
+- [ ] Push to repository
 
-## Package Publishing
+## Update Original Project
 
-- [ ] Set up GitHub Actions for CI/CD
-- [ ] Configure npm publishing
-- [ ] Publish initial version (1.0.0)
-- [ ] Test installation in a new project
-
-## Main Project Integration
-
-- [ ] Install package in main project
-- [ ] Update imports to use new package
-- [ ] Configure the package properly
-- [ ] Update tests to use mock of the new package
-- [ ] Run tests to verify functionality
-- [ ] Remove old code and test files
-
-## Final Steps
-
-- [ ] Document the migration process
-- [ ] Update main project README
-- [ ] Push all changes
+- [ ] Update imports in the original project
+- [ ] Verify that the original project works with the extracted utilities
