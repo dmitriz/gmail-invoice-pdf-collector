@@ -51,6 +51,23 @@ If these guidelines are not followed:
 Terminal commands must ALWAYS be combined into a single
 comprehensive script. No exceptions.
 
+## Minimalism Principles [REQUIRED]
+
+- Apply extreme minimalism in all solutions
+- Prefer modifying existing files rather than creating new ones
+- Use the absolute minimum number of files necessary
+- Avoid introducing new dependencies unless absolutely essential
+- Prefer simpler solutions even if they require slightly more manual work
+- Always choose the most straightforward implementation approach
+- Avoid configuration files that don't add significant value
+- Create only what is necessary - nothing more
+- Adapt and reuse existing files instead of creating duplicates
+- Consolidate and merge similar functionalities into fewer files
+- Question every new file, config, or dependency before adding it
+- Prioritize simplicity over advanced features unless core requirements demand them
+- Default to existing patterns rather than introducing new ones
+- Consider whether functionality can be simplified before implementing complex solutions
+
 # 🧠 GitHub Copilot Task Workflow Guide
 
 To maintain a clean, consistent development workflow, follow these steps at the beginning and end of **every task**.
