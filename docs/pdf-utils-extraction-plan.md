@@ -140,7 +140,7 @@ pdf-utils/
 ├── .npmignore
 ├── package.json
 ├── README.md
-├── LICENSE
+
 └── jest.config.js
 ```
 

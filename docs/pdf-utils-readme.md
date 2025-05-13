@@ -108,6 +108,4 @@ Processes a single PDF for operations like merging.
 
 - Promise resolving to an object: Result object with success status
 
-## License
 
-MIT

@@ -74,12 +74,15 @@ comprehensive script. No exceptions.
 - DO NOT remove or modify existing functionality without specific direction
 - DO NOT modify files or code that aren't part of the current task
 - KEEP all essential components even when simplifying:
-  - Essential components include: GitHub workflow files, .gitignore with complete entries, license files
+  - Essential components include: GitHub workflow files (minimal but required), .gitignore with complete entries
 - When simplifying, explain what you're removing and why BEFORE making changes
 - ALWAYS get confirmation before removing anything that might be useful
 - FOCUS exclusively on the task at hand without introducing tangential changes
 - Maintain consistency with existing code patterns unless explicitly asked to change them
 - DO NOT silently remove entries or configurations - get explicit approval first
+- CREATE FILES DIRECTLY without creating scripts that require user approval for simple file creation/updates
+- AVOID UNNECESSARY APPROVAL REQUESTS for file creation or modification operations
+- BATCH EXECUTION COMMANDS (not file creation commands) into scripts when multiple steps are needed
 
 # 🧠 GitHub Copilot Task Workflow Guide
 
@@ -96,6 +99,11 @@ To maintain a clean, consistent development workflow, follow these steps at the 
      git checkout -b <feature-branch-name>
      ```
    - If you are already on a feature or non-main branch:
+     - DO NOT switch back to main - stay on the current branch
+     - Pull latest changes from remote for the current branch:
+       ```bash
+       git pull origin $(git branch --show-current)
+       ```
      - Attempt to commit any local changes before proceeding:
        ```bash
        git add .
